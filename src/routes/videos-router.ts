@@ -101,7 +101,7 @@ videosRouter.put("/:id", (req: Request, res: Response) => {
   const availableResolutions = req.body.availableResolutions;
   const canBeDownloaded = req.body.canBeDownloaded;
   const minAgeRestriction = req.body.minAgeRestriction;
-  const publicationDate: string = req.body.publicationDate?.trim();
+  const publicationDate: string = req.body.publicationDate;
 
   if (!title) {
     responseError.errorsMessages!.push({
