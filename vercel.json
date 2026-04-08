@@ -1,0 +1,9 @@
+{
+  "version": 2,
+
+  "name": "test_backend",
+
+  "builds": [{ "src": "src/index.ts", "use": "@vercel/node" }],
+
+  "routes": [{ "src": "/(.*)", "dest": "src/index.ts" }]
+}
