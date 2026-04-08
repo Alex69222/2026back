@@ -2,18 +2,17 @@ import { Router, Request, Response } from "express";
 import { IVideo, VideoResulutionsEnum } from "../types/models/video-model";
 import { IAPIErrorResult } from "../types/error/api-error";
 import { isValidDateTimeString } from "../utils/isValidDateTimeString";
-
-const videos: Array<IVideo> = [];
+import { dataBase } from "../repository/memoryDB";
 
 export const videosRouter = Router();
 
 videosRouter.get("/", (req: Request, res: Response) => {
-  res.send(videos);
+  res.send(dataBase.videos);
 });
 
 videosRouter.get("/:id", (req: Request, res: Response) => {
   const paramId = +req.params.id;
-  const video = videos.find((v) => v.id === paramId);
+  const video = dataBase.videos.find((v) => v.id === paramId);
   if (!video) return res.sendStatus(404);
   res.send(video);
 });
@@ -24,7 +23,7 @@ videosRouter.post("/", (req: Request, res: Response) => {
   };
 
   const title: string = req.body.title?.trim();
-  const author: string = req.body.title?.trim();
+  const author: string = req.body.author?.trim();
   const availableResolutions = req.body.availableResolutions;
   if (!title) {
     responseError.errorsMessages!.push({
@@ -80,28 +79,28 @@ videosRouter.post("/", (req: Request, res: Response) => {
     title,
     author,
     canBeDownloaded: false,
-    minAgeRestricion: null,
+    minAgeRestriction: null,
     createdAt: date.toISOString(),
     publicationDate: date.toISOString(),
     availableResolutions,
   };
-  videos.push(video);
+  dataBase.videos.push(video);
   res.status(201).send(video);
 });
 
 videosRouter.put("/:id", (req: Request, res: Response) => {
   const paramId = +req.params.id;
-  const video = videos.find((v) => v.id === paramId);
+  const video = dataBase.videos.find((v) => v.id === paramId);
   if (!video) return res.sendStatus(404);
   const responseError: IAPIErrorResult = {
     errorsMessages: [],
   };
 
   const title: string = req.body.title?.trim();
-  const author: string = req.body.title?.trim();
+  const author: string = req.body.author?.trim();
   const availableResolutions = req.body.availableResolutions;
   const canBeDownloaded = req.body.canBeDownloaded;
-  const minAgeRestriction = req.body.minAgeRestricion;
+  const minAgeRestriction = req.body.minAgeRestriction;
   const publicationDate: string = req.body.publicationDate?.trim();
 
   if (!title) {
@@ -179,13 +178,20 @@ videosRouter.put("/:id", (req: Request, res: Response) => {
     return res.status(400).send(responseError);
   }
 
+  video.title = title;
+  video.author = author;
+  video.availableResolutions = availableResolutions;
+  video.canBeDownloaded = canBeDownloaded;
+  video.minAgeRestriction = minAgeRestriction;
+  video.publicationDate = publicationDate;
+
   res.sendStatus(204);
 });
 
 videosRouter.delete("/:id", (req: Request, res: Response) => {
   const paramId = +req.params.id;
-  const videoIndex = videos.findIndex((v) => v.id === paramId);
+  const videoIndex = dataBase.videos.findIndex((v) => v.id === paramId);
   if (videoIndex === -1) return res.sendStatus(404);
-  videos.splice(videoIndex, 1);
+  dataBase.videos.splice(videoIndex, 1);
   res.sendStatus(204);
 });

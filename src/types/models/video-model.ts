@@ -13,7 +13,7 @@ export interface IVideo {
   title: string;
   author: string;
   canBeDownloaded: boolean;
-  minAgeRestricion: number | null;
+  minAgeRestriction: number | null;
   createdAt: string; // $date-time
   publicationDate: string; // $date-time
   availableResolutions: Array<VideoResulutionsEnum>;
