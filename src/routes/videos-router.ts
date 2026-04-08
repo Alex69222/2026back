@@ -3,6 +3,7 @@ import { IVideo, VideoResulutionsEnum } from "../types/models/video-model";
 import { IAPIErrorResult } from "../types/error/api-error";
 import { isValidDateTimeString } from "../utils/isValidDateTimeString";
 import { dataBase } from "../repository/memoryDB";
+import { addDays } from "date-fns";
 
 export const videosRouter = Router();
 
@@ -22,10 +23,10 @@ videosRouter.post("/", (req: Request, res: Response) => {
     errorsMessages: [],
   };
 
-  const title: string = req.body.title?.trim();
-  const author: string = req.body.author?.trim();
+  const title: string = req.body.title;
+  const author: string = req.body.author;
   const availableResolutions = req.body.availableResolutions;
-  if (!title) {
+  if (!title || typeof title !== "string") {
     responseError.errorsMessages!.push({
       field: "title",
       message: "Title was not provided",
@@ -37,7 +38,7 @@ videosRouter.post("/", (req: Request, res: Response) => {
       message: "Max length 40",
     });
   }
-  if (!author) {
+  if (!author || typeof author !== "string") {
     responseError.errorsMessages!.push({
       field: "author",
       message: "Author was not provided",
@@ -81,7 +82,7 @@ videosRouter.post("/", (req: Request, res: Response) => {
     canBeDownloaded: false,
     minAgeRestriction: null,
     createdAt: date.toISOString(),
-    publicationDate: date.toISOString(),
+    publicationDate: addDays(date, 1).toISOString(),
     availableResolutions,
   };
   dataBase.videos.push(video);
@@ -96,14 +97,14 @@ videosRouter.put("/:id", (req: Request, res: Response) => {
     errorsMessages: [],
   };
 
-  const title: string = req.body.title?.trim();
-  const author: string = req.body.author?.trim();
+  const title: string = req.body.title;
+  const author: string = req.body.author;
   const availableResolutions = req.body.availableResolutions;
   const canBeDownloaded = req.body.canBeDownloaded;
   const minAgeRestriction = req.body.minAgeRestriction;
   const publicationDate: string = req.body.publicationDate;
 
-  if (!title) {
+  if (!title || typeof title !== "string") {
     responseError.errorsMessages!.push({
       field: "title",
       message: "Title was not provided",
@@ -115,7 +116,7 @@ videosRouter.put("/:id", (req: Request, res: Response) => {
       message: "Max length 40",
     });
   }
-  if (!author) {
+  if (!author || typeof author !== "string") {
     responseError.errorsMessages!.push({
       field: "author",
       message: "Author was not provided",
