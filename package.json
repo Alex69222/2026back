@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "watch": "tsc -w",
-    "dev": "nodemon --inspect dist/index.js"
+    "dev": "nodemon --inspect dist/index.js",
+    "test-e2e": "jest --config ./__tests__/jest-e2e.config.js"
   },
   "keywords": [],
   "author": "",

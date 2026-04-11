@@ -30,6 +30,6 @@ export interface IUpdateVideoInputModel {
   author: string; // maxLength 20
   availableResolutions: Array<VideoResulutionsEnum>; // at least 1
   canBeDownloaded: boolean;
-  minAgeRestricion: number | null; // min 1, max 18
+  minAgeRestriction: number | null; // min 1, max 18
   publicationDate: string; // $date-time
 }

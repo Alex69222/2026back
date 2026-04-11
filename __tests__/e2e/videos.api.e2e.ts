@@ -1,0 +1,102 @@
+/// <reference types="jest" />
+import request from "supertest";
+import { app, RouterPaths } from "../../src/index";
+import {
+  ICreateVideoInputModel,
+  IUpdateVideoInputModel,
+  IVideo,
+  VideoResulutionsEnum,
+} from "../../src/features/videos/video-model";
+import { videosTestManager } from "../managers/videosTestManager";
+import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
+
+let video: IVideo;
+
+describe("/videos-router", () => {
+  beforeAll(async () => {
+    await request(app).delete(RouterPaths.test_delete);
+  });
+  it("should return 200 and empty array", async () => {
+    await request(app).get(RouterPaths.videos).expect(200, []);
+  });
+
+  it("should return 404 for not existing video", async () => {
+    await request(app)
+      .get(RouterPaths.videos + "/999")
+      .expect(404);
+  });
+
+  it("should create video with correct input data", async () => {
+    const inputData: ICreateVideoInputModel = {
+      title: "best video",
+      author: "best author",
+      availableResolutions: [VideoResulutionsEnum.P2160],
+    };
+
+    const { createdEntity } = await videosTestManager.createVideo(inputData);
+
+    video = createdEntity!;
+  });
+
+  it("should return 400 when attempting to create video with invalid data", async () => {
+    const inputData = {};
+    const { createdEntity } = await videosTestManager.createVideo(
+      inputData as ICreateVideoInputModel,
+      HTTP_STATUSES.BAD_REQUEST_400,
+    );
+
+    expect(createdEntity).toBeUndefined();
+  });
+  it("should return video by id", async () => {
+    await request(app)
+      .get(`${RouterPaths.videos}/${video.id}`)
+      .expect(200, video);
+  });
+
+  it("should update video by id", async () => {
+    const updatedData: IUpdateVideoInputModel = {
+      title: "updated title",
+      author: "updated author",
+      canBeDownloaded: true,
+      minAgeRestriction: 18,
+      publicationDate: new Date().toISOString(),
+      availableResolutions: [
+        VideoResulutionsEnum.P1080,
+        VideoResulutionsEnum.P1440,
+      ],
+    };
+
+    const result = await request(app)
+      .put(`${RouterPaths.videos}/${video.id}`)
+      .send(updatedData);
+
+    expect(result.status).toBe(204);
+
+    const updatedVideoResult = await request(app).get(
+      `${RouterPaths.videos}/${video.id}`,
+    );
+    expect(updatedVideoResult.body.title).toBe(updatedData.title);
+    expect(updatedVideoResult.body.author).toBe(updatedData.author);
+    expect(updatedVideoResult.body.canBeDownloaded).toBe(
+      updatedData.canBeDownloaded,
+    );
+    expect(updatedVideoResult.body.minAgeRestriction).toBe(
+      updatedData.minAgeRestriction,
+    );
+    expect(updatedVideoResult.body.publicationDate).toBe(
+      updatedData.publicationDate,
+    );
+
+    expect(updatedVideoResult.body.availableResolutions).toStrictEqual(
+      updatedData.availableResolutions,
+    );
+    video = { ...video, ...updatedData };
+  });
+
+  it("should delete video by id", async () => {
+    await request(app).delete(`${RouterPaths.videos}/${video.id}`).expect(204);
+    await request(app).delete(`${RouterPaths.videos}/${video.id}`).expect(404);
+    await request(app).get(`${RouterPaths.videos}/${video.id}`).expect(404);
+    await request(app).get(RouterPaths.videos).expect(200, []);
+  });
+});

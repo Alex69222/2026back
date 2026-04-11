@@ -1,9 +1,10 @@
 import { Router, Request, Response } from "express";
-import { IVideo, VideoResulutionsEnum } from "../types/models/video-model";
-import { IAPIErrorResult } from "../types/error/api-error";
-import { isValidDateTimeString } from "../utils/isValidDateTimeString";
-import { dataBase } from "../repository/memoryDB";
+import { IVideo, VideoResulutionsEnum } from "./video-model";
+import { IAPIErrorResult } from "../../types/error/api-error";
+import { isValidDateTimeString } from "../../utils/isValidDateTimeString";
+import { dataBase } from "../../repository/memoryDB";
 import { addDays } from "date-fns";
+import { HTTP_STATUSES } from "../../utils/httpStatuses";
 
 export const videosRouter = Router();
 
@@ -14,7 +15,7 @@ videosRouter.get("/", (req: Request, res: Response) => {
 videosRouter.get("/:id", (req: Request, res: Response) => {
   const paramId = +req.params.id;
   const video = dataBase.videos.find((v) => v.id === paramId);
-  if (!video) return res.sendStatus(404);
+  if (!video) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   res.send(video);
 });
 
@@ -72,7 +73,7 @@ videosRouter.post("/", (req: Request, res: Response) => {
   }
 
   if (responseError.errorsMessages!.length) {
-    return res.status(400).send(responseError);
+    return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(responseError);
   }
   const date = new Date();
   const video: IVideo = {
@@ -86,7 +87,7 @@ videosRouter.post("/", (req: Request, res: Response) => {
     availableResolutions,
   };
   dataBase.videos.push(video);
-  res.status(201).send(video);
+  res.status(HTTP_STATUSES.CREATED_201).send(video);
 });
 
 videosRouter.put("/:id", (req: Request, res: Response) => {
@@ -176,7 +177,7 @@ videosRouter.put("/:id", (req: Request, res: Response) => {
   }
 
   if (responseError.errorsMessages!.length) {
-    return res.status(400).send(responseError);
+    return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(responseError);
   }
 
   video.title = title;
@@ -186,7 +187,7 @@ videosRouter.put("/:id", (req: Request, res: Response) => {
   video.minAgeRestriction = minAgeRestriction;
   video.publicationDate = publicationDate;
 
-  res.sendStatus(204);
+  res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });
 
 videosRouter.delete("/:id", (req: Request, res: Response) => {
@@ -194,5 +195,5 @@ videosRouter.delete("/:id", (req: Request, res: Response) => {
   const videoIndex = dataBase.videos.findIndex((v) => v.id === paramId);
   if (videoIndex === -1) return res.sendStatus(404);
   dataBase.videos.splice(videoIndex, 1);
-  res.sendStatus(204);
+  res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });
