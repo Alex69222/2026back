@@ -39,6 +39,19 @@ describe("/videos-router", () => {
     video = createdEntity!;
   });
 
+  it("shouldn't create video with incorrect title length", async () => {
+    const inputData: ICreateVideoInputModel = {
+      title: "b".repeat(41),
+      author: "best author",
+      availableResolutions: [VideoResulutionsEnum.P2160],
+    };
+
+    await videosTestManager.createVideo(
+      inputData,
+      HTTP_STATUSES.BAD_REQUEST_400,
+    );
+  });
+
   it("should return 400 when attempting to create video with invalid data", async () => {
     const inputData = {};
     const { createdEntity } = await videosTestManager.createVideo(
