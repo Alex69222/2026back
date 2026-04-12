@@ -1,14 +1,15 @@
 /// <reference types="jest" />
 import request from "supertest";
 import { app, RouterPaths } from "../../src/index";
+
+import { videosTestManager } from "../managers/videosTestManager";
+import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
 import {
   ICreateVideoInputModel,
   IUpdateVideoInputModel,
   IVideo,
   VideoResulutionsEnum,
-} from "../../src/features/videos/video-model";
-import { videosTestManager } from "../managers/videosTestManager";
-import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
+} from "../../src/types/video-model";
 
 let video: IVideo;
 

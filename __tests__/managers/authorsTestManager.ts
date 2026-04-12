@@ -1,10 +1,9 @@
+/// <reference types="jest" />
 import { app, RouterPaths } from "../../src";
-import {
-  IAuthor,
-  ICreateAuthorInputModel,
-} from "../../src/features/authors/author-model";
+
 import request from "supertest";
 import { HTTP_STATUSES, HttpStatusType } from "../../src/utils/httpStatuses";
+import { IAuthor, ICreateAuthorInputModel } from "../../src/types/author-model";
 
 export const authorsTestManager = {
   async createAuthor(

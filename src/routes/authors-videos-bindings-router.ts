@@ -1,8 +1,9 @@
 import { Request, Response, Router } from "express";
-import { IAPIErrorResult } from "../../types/error/api-error";
-import { dataBase } from "../../repository/memoryDB";
-import { HTTP_STATUSES } from "../../utils/httpStatuses";
-import { IAuthorVideoBinging } from "./authors-videos-bindings-model";
+import { IAPIErrorResult } from "../types/error/api-error";
+import { HTTP_STATUSES } from "../utils/httpStatuses";
+import { dataBase } from "../repositories/memoryDB";
+import { IAuthorVideoBinging } from "../types/authors-videos-bindings-model";
+import { videosRepository } from "../repositories/videos-repository";
 
 export const authorsVideosBindingsRouter = Router();
 
@@ -27,7 +28,7 @@ authorsVideosBindingsRouter.post("/", async (req: Request, res: Response) => {
   if (responseError.errorsMessages!.length) {
     return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(responseError);
   }
-  const video = dataBase.videos.find((v) => v.id === videoId);
+  const video = videosRepository.getVideoById(videoId);
   const author = dataBase.authors.find((a) => a.id === authorId);
   let notFoundMessage: string = "";
   if (!video) {

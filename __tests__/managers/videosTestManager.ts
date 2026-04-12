@@ -1,10 +1,7 @@
 import { app, RouterPaths } from "../../src";
 import request from "supertest";
 import { HTTP_STATUSES, HttpStatusType } from "../../src/utils/httpStatuses";
-import {
-  ICreateVideoInputModel,
-  IVideo,
-} from "../../src/features/videos/video-model";
+import { ICreateVideoInputModel, IVideo } from "../../src/types/video-model";
 
 export const videosTestManager = {
   async createVideo(

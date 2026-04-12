@@ -4,7 +4,7 @@ import { HTTP_STATUSES, HttpStatusType } from "../../src/utils/httpStatuses";
 import {
   IAuthorVideoBinging,
   ICreateAuthorVideoBindingModel,
-} from "../../src/features/authors-videos-bindings/authors-videos-bindings-model";
+} from "../../src/types/authors-videos-bindings-model";
 
 export const authorsVideosBindingTestManager = {
   async createBinding(

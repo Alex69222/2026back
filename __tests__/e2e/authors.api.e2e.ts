@@ -1,12 +1,10 @@
-import { HTTP_STATUSES } from "./../../src/utils/httpStatuses";
 /// <reference types="jest" />
+import { HTTP_STATUSES } from "./../../src/utils/httpStatuses";
 import request from "supertest";
 import { app, RouterPaths } from "../../src/index";
-import {
-  IAuthor,
-  ICreateAuthorInputModel,
-} from "../../src/features/authors/author-model";
+
 import { authorsTestManager } from "../managers/authorsTestManager";
+import { IAuthor, ICreateAuthorInputModel } from "../../src/types/author-model";
 
 let author: IAuthor;
 

@@ -1,20 +1,20 @@
 import { Router, Request, Response } from "express";
-import { IVideo, VideoResulutionsEnum } from "./video-model";
-import { IAPIErrorResult } from "../../types/error/api-error";
-import { isValidDateTimeString } from "../../utils/isValidDateTimeString";
-import { dataBase } from "../../repository/memoryDB";
+import { IVideo, VideoResulutionsEnum } from "../types/video-model";
+import { IAPIErrorResult } from "../types/error/api-error";
+import { isValidDateTimeString } from "../utils/isValidDateTimeString";
 import { addDays } from "date-fns";
-import { HTTP_STATUSES } from "../../utils/httpStatuses";
+import { HTTP_STATUSES } from "../utils/httpStatuses";
+import { videosRepository } from "../repositories/videos-repository";
 
 export const videosRouter = Router();
 
 videosRouter.get("/", (req: Request, res: Response) => {
-  res.send(dataBase.videos);
+  res.send(videosRepository.getVideos());
 });
 
 videosRouter.get("/:id", (req: Request, res: Response) => {
   const paramId = +req.params.id;
-  const video = dataBase.videos.find((v) => v.id === paramId);
+  const video = videosRepository.getVideoById(paramId);
   if (!video) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   res.send(video);
 });
@@ -75,24 +75,18 @@ videosRouter.post("/", (req: Request, res: Response) => {
   if (responseError.errorsMessages!.length) {
     return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(responseError);
   }
-  const date = new Date();
-  const video: IVideo = {
-    id: +date,
+
+  const video = videosRepository.addVideo({
     title,
     author,
-    canBeDownloaded: false,
-    minAgeRestriction: null,
-    createdAt: date.toISOString(),
-    publicationDate: addDays(date, 1).toISOString(),
     availableResolutions,
-  };
-  dataBase.videos.push(video);
+  });
   res.status(HTTP_STATUSES.CREATED_201).send(video);
 });
 
 videosRouter.put("/:id", (req: Request, res: Response) => {
   const paramId = +req.params.id;
-  const video = dataBase.videos.find((v) => v.id === paramId);
+  const video = videosRepository.getVideoById(paramId);
   if (!video) return res.sendStatus(404);
   const responseError: IAPIErrorResult = {
     errorsMessages: [],
@@ -180,20 +174,29 @@ videosRouter.put("/:id", (req: Request, res: Response) => {
     return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(responseError);
   }
 
-  video.title = title;
-  video.author = author;
-  video.availableResolutions = availableResolutions;
-  video.canBeDownloaded = canBeDownloaded;
-  video.minAgeRestriction = minAgeRestriction;
-  video.publicationDate = publicationDate;
+  const videoUpdated = videosRepository.updateVideo(paramId, {
+    title,
+    author,
+    availableResolutions,
+    canBeDownloaded,
+    minAgeRestriction,
+    publicationDate,
+  });
 
-  res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+  res.sendStatus(
+    videoUpdated ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.NOT_FOUND_404,
+  );
 });
 
 videosRouter.delete("/:id", (req: Request, res: Response) => {
   const paramId = +req.params.id;
-  const videoIndex = dataBase.videos.findIndex((v) => v.id === paramId);
-  if (videoIndex === -1) return res.sendStatus(404);
-  dataBase.videos.splice(videoIndex, 1);
-  res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+
+  const video = videosRepository.getVideoById(paramId);
+  if (!video) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+  const deleteSuccessfully = videosRepository.deleteVideoBy(paramId);
+  res.sendStatus(
+    deleteSuccessfully
+      ? HTTP_STATUSES.NO_CONTENT_204
+      : HTTP_STATUSES.BAD_REQUEST_400,
+  );
 });

@@ -1,17 +1,18 @@
 /// <reference types="jest" />
 
-import { ICreateAuthorVideoBindingModel } from "./../../src/features/authors-videos-bindings/authors-videos-bindings-model";
 import { HTTP_STATUSES } from "./../../src/utils/httpStatuses";
 import request from "supertest";
 import { app, RouterPaths } from "../../src/index";
-import { ICreateAuthorInputModel } from "../../src/features/authors/author-model";
 import { authorsVideosBindingTestManager } from "../managers/authorsVideosBindingsTestManager";
+
+import { videosTestManager } from "../managers/videosTestManager";
+import { authorsTestManager } from "../managers/authorsTestManager";
+import { ICreateAuthorVideoBindingModel } from "../../src/types/authors-videos-bindings-model";
 import {
   ICreateVideoInputModel,
   VideoResulutionsEnum,
-} from "../../src/features/videos/video-model";
-import { videosTestManager } from "../managers/videosTestManager";
-import { authorsTestManager } from "../managers/authorsTestManager";
+} from "../../src/types/video-model";
+import { ICreateAuthorInputModel } from "../../src/types/author-model";
 
 describe("/authors-videos-bingings-router", () => {
   beforeAll(async () => {
@@ -64,7 +65,5 @@ describe("/authors-videos-bingings-router", () => {
       },
       HTTP_STATUSES.BAD_REQUEST_400,
     );
-
-    console.log(response.body);
   });
 });

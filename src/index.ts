@@ -1,10 +1,11 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import { productsRouter } from "./routes/products-router";
-import { videosRouter } from "./features/videos/videos-router";
-import { dataBase } from "./repository/memoryDB";
-import { authorsRouter } from "./features/authors/authors-router";
-import { authorsVideosBindingsRouter } from "./features/authors-videos-bindings/authors-videos-bindings-router";
+import { videosRouter } from "./routes/videos-router";
+import { dataBase } from "./repositories/memoryDB";
+import { authorsRouter } from "./routes/authors-router";
+import { authorsVideosBindingsRouter } from "./routes/authors-videos-bindings-router";
+import { videosRepository } from "./repositories/videos-repository";
 
 const baseUrl = "/api";
 
@@ -31,7 +32,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.delete(RouterPaths.test_delete, (req: Request, res: Response) => {
-  dataBase.videos = [];
+  videosRepository.clearVideos();
   dataBase.authors = [];
   dataBase.authorVideoBindings = [];
   res.sendStatus(204);

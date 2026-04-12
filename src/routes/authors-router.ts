@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
-import { IAPIErrorResult } from "../../types/error/api-error";
-import { dataBase } from "../../repository/memoryDB";
-import { IAuthor } from "./author-model";
-import { HTTP_STATUSES } from "../../utils/httpStatuses";
+import { dataBase } from "../repositories/memoryDB";
+import { IAPIErrorResult } from "../types/error/api-error";
+import { HTTP_STATUSES } from "../utils/httpStatuses";
+import { IAuthor } from "../types/author-model";
 
 export const authorsRouter = Router();
 
