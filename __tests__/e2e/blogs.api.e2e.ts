@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import request from "supertest";
 import { app, RouterPaths } from "../../src";
 import { IBlogModel, ICreateBlogModel } from "../../src/types/blog-model";
@@ -164,7 +165,13 @@ describe("/blogsRouter", () => {
       .send({ ...updatedData, websiteUrl: "incorrect_url" })
       .expect(HTTP_STATUSES.BAD_REQUEST_400);
   });
-
+  it("put/id: 404 error when trying to update non-existing blog", async () => {
+    await request(app)
+      .put(RouterPaths.blogs + `/non_existing_blog_id`)
+      .set("Authorization", validBasicAuthLoginPass)
+      .send(updatedData)
+      .expect(HTTP_STATUSES.NOT_FOUND_404);
+  });
   it("put/id: should update blog", async () => {
     await request(app)
       .put(RouterPaths.blogs + `/${blog.id}`)

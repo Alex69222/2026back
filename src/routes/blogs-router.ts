@@ -4,12 +4,14 @@ import { HTTP_STATUSES } from "../utils/httpStatuses";
 import { basicAuthMiddleware } from "../middlewares/auth-middlewares/basic-auth-middleware";
 import {
   validateBlogDescriptionMiddleware,
+  validateBlogExistsMiddleware,
   validateBlogNameMiddleware,
   validateBlogWebsiteUrlMiddleware,
 } from "../middlewares/blogs-middlewares";
 import { ICreateBlogModel } from "../types/blog-model";
 import { matchedData } from "express-validator";
 import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
+import { unexpectedErrorMsgJson } from "../utils/errors";
 
 export const blogsRouter = Router();
 
@@ -42,33 +44,30 @@ blogsRouter.post(
 blogsRouter.put(
   "/:id",
   basicAuthMiddleware,
+  validateBlogExistsMiddleware,
   validateBlogNameMiddleware,
   validateBlogDescriptionMiddleware,
   validateBlogWebsiteUrlMiddleware,
   inputValidationMiddleware,
   (req: Request, res: Response) => {
     const paramId = req.params.id.toString();
-    const blogForUpdate = blogsRepository.getBlogById(paramId);
 
-    if (!blogForUpdate) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
     const data: ICreateBlogModel = matchedData(req);
 
     const updated = blogsRepository.updateBlog(paramId, data);
 
-    res.sendStatus(
-      updated ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400,
-    );
+    updated
+      ? res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+      : res.status(HTTP_STATUSES.BAD_REQUEST_400).json(unexpectedErrorMsgJson);
   },
 );
 
 blogsRouter.delete(
   "/:id",
   basicAuthMiddleware,
+  validateBlogExistsMiddleware,
   (req: Request, res: Response) => {
     const paramId = req.params.id.toString();
-    const blogForDeletion = blogsRepository.getBlogById(paramId);
-
-    if (!blogForDeletion) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
 
     const deleted = blogsRepository.deleteBlogById(paramId);
 

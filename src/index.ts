@@ -9,11 +9,13 @@ import { videosRepository } from "./repositories/videos-repository";
 import { blogsRepository } from "./repositories/blogs-repository";
 import { postsRepository } from "./repositories/posts-repository";
 import { blogsRouter } from "./routes/blogs-router";
+import { postsRouter } from "./routes/posts-router";
 
 const baseUrl = "/api";
 
 export const RouterPaths = {
   blogs: baseUrl + "/blogs",
+  posts: baseUrl + "/posts",
   products: baseUrl + "/products",
   videos: baseUrl + "/videos",
   authors: baseUrl + "/authors",
@@ -28,7 +30,9 @@ app.use(express.json());
 app.use(RouterPaths.products, productsRouter);
 app.use(RouterPaths.videos, videosRouter);
 app.use(RouterPaths.authors, authorsRouter);
+
 app.use(RouterPaths.blogs, blogsRouter);
+app.use(RouterPaths.posts, postsRouter);
 app.use(RouterPaths.authorsVideosBingings, authorsVideosBindingsRouter);
 
 app.get("/", (req: Request, res: Response) => {

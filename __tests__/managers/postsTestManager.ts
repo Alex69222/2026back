@@ -1,30 +1,31 @@
 import request from "supertest";
-import { IBlogModel, ICreateBlogModel } from "../../src/types/blog-model";
+import { ICreatePostModel, IPostModel } from "../../src/types/post-model";
 import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
-import { app, RouterPaths } from "../../src";
 import { ITestManagerCreateData } from "./types/manager.types";
+import { app, RouterPaths } from "../../src";
 
-export const blogsTestManager = {
-  async createBlog({
+export const postsTestManager = {
+  async createPost({
     inputData,
     expectedStatusCode = HTTP_STATUSES.CREATED_201,
     authorizationCredentials = "",
-  }: ITestManagerCreateData<ICreateBlogModel>) {
+  }: ITestManagerCreateData<ICreatePostModel>) {
     const response = await request(app)
-      .post(RouterPaths.blogs)
+      .post(RouterPaths.posts)
       .set("Authorization", authorizationCredentials)
       .send(inputData);
-
-    if (response.status !== expectedStatusCode) {
-      console.log(response.body);
-    }
     expect(response.status).toBe(expectedStatusCode);
 
     let createdEntity;
 
     if (expectedStatusCode === HTTP_STATUSES.CREATED_201) {
-      createdEntity = response.body as IBlogModel;
-      expect(response.body.name).toBe(inputData.name);
+      createdEntity = response.body as IPostModel;
+
+      expect(response.body.title).toBe(inputData.title);
+      expect(response.body.shortDescription).toBe(inputData.shortDescription);
+      expect(response.body.content).toBe(inputData.content);
+      expect(response.body.blogId).toBe(inputData.blogId);
+      expect(response.body.blogName).toEqual(expect.any(String));
       expect(response.body.id).toEqual(expect.any(String));
     }
 

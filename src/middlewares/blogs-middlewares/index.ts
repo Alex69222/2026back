@@ -1,5 +1,7 @@
 import { body } from "express-validator";
-
+import { NextFunction, Request, Response } from "express";
+import { blogsRepository } from "../../repositories/blogs-repository";
+import { HTTP_STATUSES } from "../../utils/httpStatuses";
 export const validateBlogNameMiddleware = body("name")
   .isString()
   .trim()
@@ -18,3 +20,15 @@ export const validateBlogWebsiteUrlMiddleware = body("websiteUrl")
   .isURL()
   .isLength({ max: 100 })
   .withMessage("Blog websiteUrl should be a valid url up to 500 characters");
+
+export const validateBlogExistsMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const paramId = req.params.id.toString();
+  const blog = blogsRepository.getBlogById(paramId);
+
+  if (!blog) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
+  next();
+};
