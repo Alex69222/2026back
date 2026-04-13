@@ -51,6 +51,37 @@ describe("/videos-router", () => {
       HTTP_STATUSES.BAD_REQUEST_400,
     );
   });
+  it("shouldn't create video with incorrect author length", async () => {
+    const inputData: ICreateVideoInputModel = {
+      title: "b".repeat(15),
+      author: "b".repeat(21),
+      availableResolutions: [VideoResulutionsEnum.P2160],
+    };
+
+    await videosTestManager.createVideo(
+      inputData,
+      HTTP_STATUSES.BAD_REQUEST_400,
+    );
+  });
+  it("shouldn't create video with invalid availableResolutions", async () => {
+    const inputData: ICreateVideoInputModel = {
+      title: "video",
+      author: "author",
+      availableResolutions: [],
+    };
+
+    await videosTestManager.createVideo(
+      inputData,
+      HTTP_STATUSES.BAD_REQUEST_400,
+    );
+    await videosTestManager.createVideo(
+      {
+        ...inputData,
+        availableResolutions: ["invalid Resolution" as VideoResulutionsEnum],
+      },
+      HTTP_STATUSES.BAD_REQUEST_400,
+    );
+  });
 
   it("should return 400 when attempting to create video with invalid data", async () => {
     const inputData = {};
@@ -105,6 +136,50 @@ describe("/videos-router", () => {
       updatedData.availableResolutions,
     );
     video = { ...video, ...updatedData };
+  });
+  it("shouldn't update video by id whith invalid data", async () => {
+    const updatedData: IUpdateVideoInputModel = {
+      title: "updated title",
+      author: "updated author",
+      canBeDownloaded: true,
+      minAgeRestriction: 18,
+      publicationDate: new Date().toISOString(),
+      availableResolutions: [
+        VideoResulutionsEnum.P1080,
+        VideoResulutionsEnum.P1440,
+      ],
+    };
+
+    await request(app)
+      .put(`${RouterPaths.videos}/${video.id}`)
+      .send({ ...updatedData, publicationDate: "invalid date string" })
+      .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+    await request(app)
+      .put(`${RouterPaths.videos}/${video.id}`)
+      .send({ ...updatedData, publicationDate: new Date().toLocaleString() })
+      .expect(HTTP_STATUSES.BAD_REQUEST_400);
+    await request(app)
+      .put(`${RouterPaths.videos}/${video.id}`)
+      .send({
+        ...updatedData,
+        publicationDate: new Date().toLocaleDateString(),
+      })
+      .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+    await request(app)
+      .put(`${RouterPaths.videos}/${video.id}`)
+      .send({ ...updatedData, canBeDownloaded: undefined })
+      .expect(HTTP_STATUSES.BAD_REQUEST_400);
+
+    await request(app)
+      .put(`${RouterPaths.videos}/${video.id}`)
+      .send({ ...updatedData, minAgeRestriction: 22 })
+      .expect(HTTP_STATUSES.BAD_REQUEST_400);
+    await request(app)
+      .put(`${RouterPaths.videos}/${video.id}`)
+      .send({ ...updatedData, minAgeRestriction: "best age" })
+      .expect(HTTP_STATUSES.BAD_REQUEST_400);
   });
 
   it("should delete video by id", async () => {

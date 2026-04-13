@@ -13,8 +13,12 @@ export const inputValidationMiddleware = (
     const responseError: IAPIErrorResult = {
       errorsMessages: errors
         .array()
-        //@ts-ignore
-        .map((er) => ({ field: er.path, message: er.msg })),
+
+        .map((er) => {
+          return er.type === "field"
+            ? { field: er.path, message: er.msg }
+            : { field: "", message: er.msg };
+        }),
     };
     return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(responseError);
   }
