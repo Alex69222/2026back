@@ -5,6 +5,7 @@ import { app, RouterPaths } from "../../src/index";
 
 import { authorsTestManager } from "../managers/authorsTestManager";
 import { IAuthor, ICreateAuthorInputModel } from "../../src/types/author-model";
+import { validBasicAuthLoginPass } from "../../src/middlewares/auth-middlewares/basic-auth-middleware";
 
 let author: IAuthor;
 
@@ -29,14 +30,32 @@ describe("/author-router", () => {
       name: "Alex",
     };
 
-    const { createdEntity } = await authorsTestManager.createAuthor(inputData);
+    const { createdEntity } = await authorsTestManager.createAuthor(
+      inputData,
+      undefined,
+      validBasicAuthLoginPass,
+    );
 
     author = createdEntity!;
+  });
+  it("shouldn't create author withouth basic auth", async () => {
+    await authorsTestManager.createAuthor(
+      { name: "" },
+      HTTP_STATUSES.UNAUTHORIZED_401,
+    );
+  });
+  it("shouldn't create author with incorrect basic auth", async () => {
+    await authorsTestManager.createAuthor(
+      { name: "" },
+      HTTP_STATUSES.UNAUTHORIZED_401,
+      "authorize me please",
+    );
   });
   it("shouldn't create author with invalid data", async () => {
     const { response } = await authorsTestManager.createAuthor(
       { name: "" },
       HTTP_STATUSES.BAD_REQUEST_400,
+      validBasicAuthLoginPass,
     );
     expect(response.status).toBe(HTTP_STATUSES.BAD_REQUEST_400);
   });

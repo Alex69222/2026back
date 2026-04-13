@@ -3,6 +3,7 @@ import { dataBase } from "../repositories/memoryDB";
 import { IAPIErrorResult } from "../types/error/api-error";
 import { HTTP_STATUSES } from "../utils/httpStatuses";
 import { IAuthor } from "../types/author-model";
+import { basicAuthMiddleware } from "../middlewares/auth-middlewares/basic-auth-middleware";
 
 export const authorsRouter = Router();
 
@@ -17,7 +18,7 @@ authorsRouter.get("/:id", (req: Request, res: Response) => {
   res.send(author);
 });
 
-authorsRouter.post("/", (req: Request, res: Response) => {
+authorsRouter.post("/", basicAuthMiddleware, (req: Request, res: Response) => {
   const responseError: IAPIErrorResult = {
     errorsMessages: [],
   };

@@ -13,6 +13,7 @@ import {
   VideoResulutionsEnum,
 } from "../../src/types/video-model";
 import { ICreateAuthorInputModel } from "../../src/types/author-model";
+import { validBasicAuthLoginPass } from "../../src/middlewares/auth-middlewares/basic-auth-middleware";
 
 describe("/authors-videos-bingings-router", () => {
   beforeAll(async () => {
@@ -51,7 +52,11 @@ describe("/authors-videos-bingings-router", () => {
     const { createdEntity: createdVideo } =
       await videosTestManager.createVideo(videoInputData);
     const { createdEntity: createdAuthor } =
-      await authorsTestManager.createAuthor(authorInputData);
+      await authorsTestManager.createAuthor(
+        authorInputData,
+        undefined,
+        validBasicAuthLoginPass,
+      );
 
     await authorsVideosBindingTestManager.createBinding({
       authorId: createdAuthor!.id,
