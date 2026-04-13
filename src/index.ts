@@ -6,10 +6,14 @@ import { dataBase } from "./repositories/memoryDB";
 import { authorsRouter } from "./routes/authors-router";
 import { authorsVideosBindingsRouter } from "./routes/authors-videos-bindings-router";
 import { videosRepository } from "./repositories/videos-repository";
+import { blogsRepository } from "./repositories/blogs-repository";
+import { postsRepository } from "./repositories/posts-repository";
+import { blogsRouter } from "./routes/blogs-router";
 
 const baseUrl = "/api";
 
 export const RouterPaths = {
+  blogs: baseUrl + "/blogs",
   products: baseUrl + "/products",
   videos: baseUrl + "/videos",
   authors: baseUrl + "/authors",
@@ -24,6 +28,7 @@ app.use(express.json());
 app.use(RouterPaths.products, productsRouter);
 app.use(RouterPaths.videos, videosRouter);
 app.use(RouterPaths.authors, authorsRouter);
+app.use(RouterPaths.blogs, blogsRouter);
 app.use(RouterPaths.authorsVideosBingings, authorsVideosBindingsRouter);
 
 app.get("/", (req: Request, res: Response) => {
@@ -33,6 +38,8 @@ app.get("/", (req: Request, res: Response) => {
 
 app.delete(RouterPaths.test_delete, (req: Request, res: Response) => {
   videosRepository.clearVideos();
+  blogsRepository.deleteBlogs();
+  postsRepository.deletePosts();
   dataBase.authors = [];
   dataBase.authorVideoBindings = [];
   res.sendStatus(204);

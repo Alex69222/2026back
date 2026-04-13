@@ -49,8 +49,9 @@ describe("/authors-videos-bingings-router", () => {
       name: "Alex",
     };
 
-    const { createdEntity: createdVideo } =
-      await videosTestManager.createVideo(videoInputData);
+    const { createdEntity: createdVideo } = await videosTestManager.createVideo(
+      { inputData: videoInputData },
+    );
     const { createdEntity: createdAuthor } =
       await authorsTestManager.createAuthor(
         authorInputData,

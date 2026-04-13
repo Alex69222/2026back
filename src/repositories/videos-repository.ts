@@ -15,10 +15,10 @@ export const videosRepository = {
     const video = videos.find((v) => v.id === id);
     return video;
   },
-  addVideo(videoinputModel: ICreateVideoInputModel): IVideo {
+  addVideo(videoInputModel: ICreateVideoInputModel): IVideo {
     const date = new Date();
     const video: IVideo = {
-      ...videoinputModel,
+      ...videoInputModel,
       id: +date,
       canBeDownloaded: false,
       minAgeRestriction: null,

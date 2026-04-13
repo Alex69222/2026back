@@ -12,7 +12,7 @@ export const inputValidationMiddleware = (
   if (!errors.isEmpty()) {
     const responseError: IAPIErrorResult = {
       errorsMessages: errors
-        .array()
+        .array({ onlyFirstError: true })
 
         .map((er) => {
           return er.type === "field"

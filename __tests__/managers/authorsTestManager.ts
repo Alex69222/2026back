@@ -9,11 +9,11 @@ export const authorsTestManager = {
   async createAuthor(
     inputData: ICreateAuthorInputModel,
     expectedStatusCode: HttpStatusType = HTTP_STATUSES.CREATED_201,
-    authorizationCredintials: string = "",
+    authorizationCredentials: string = "",
   ) {
     const response = await request(app)
       .post(RouterPaths.authors)
-      .set("Authorization", authorizationCredintials)
+      .set("Authorization", authorizationCredentials)
       .send(inputData);
     expect(response.status).toBe(expectedStatusCode);
 

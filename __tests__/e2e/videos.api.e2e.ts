@@ -34,7 +34,9 @@ describe("/videos-router", () => {
       availableResolutions: [VideoResulutionsEnum.P2160],
     };
 
-    const { createdEntity } = await videosTestManager.createVideo(inputData);
+    const { createdEntity } = await videosTestManager.createVideo({
+      inputData,
+    });
 
     video = createdEntity!;
   });
@@ -46,10 +48,10 @@ describe("/videos-router", () => {
       availableResolutions: [VideoResulutionsEnum.P2160],
     };
 
-    await videosTestManager.createVideo(
+    await videosTestManager.createVideo({
       inputData,
-      HTTP_STATUSES.BAD_REQUEST_400,
-    );
+      expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
+    });
   });
   it("shouldn't create video with incorrect author length", async () => {
     const inputData: ICreateVideoInputModel = {
@@ -58,10 +60,10 @@ describe("/videos-router", () => {
       availableResolutions: [VideoResulutionsEnum.P2160],
     };
 
-    await videosTestManager.createVideo(
+    await videosTestManager.createVideo({
       inputData,
-      HTTP_STATUSES.BAD_REQUEST_400,
-    );
+      expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
+    });
   });
   it("shouldn't create video with invalid availableResolutions", async () => {
     const inputData: ICreateVideoInputModel = {
@@ -70,25 +72,25 @@ describe("/videos-router", () => {
       availableResolutions: [],
     };
 
-    await videosTestManager.createVideo(
+    await videosTestManager.createVideo({
       inputData,
-      HTTP_STATUSES.BAD_REQUEST_400,
-    );
-    await videosTestManager.createVideo(
-      {
+      expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
+    });
+    await videosTestManager.createVideo({
+      inputData: {
         ...inputData,
         availableResolutions: ["invalid Resolution" as VideoResulutionsEnum],
       },
-      HTTP_STATUSES.BAD_REQUEST_400,
-    );
+      expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
+    });
   });
 
   it("should return 400 when attempting to create video with invalid data", async () => {
     const inputData = {};
-    const { createdEntity } = await videosTestManager.createVideo(
-      inputData as ICreateVideoInputModel,
-      HTTP_STATUSES.BAD_REQUEST_400,
-    );
+    const { createdEntity } = await videosTestManager.createVideo({
+      inputData: inputData as ICreateVideoInputModel,
+      expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
+    });
 
     expect(createdEntity).toBeUndefined();
   });
