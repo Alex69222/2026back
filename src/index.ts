@@ -11,7 +11,7 @@ import { postsRepository } from "./repositories/posts-repository";
 import { blogsRouter } from "./routes/blogs-router";
 import { postsRouter } from "./routes/posts-router";
 import { runDB } from "./repositories/db";
-
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
 const baseUrl = "/api";
 
 export const RouterPaths = {
@@ -51,7 +51,7 @@ app.delete(RouterPaths.test_delete, async (req: Request, res: Response) => {
 });
 
 export const startApp = async () => {
-  await runDB();
+  await runDB(MONGO_URI);
 
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

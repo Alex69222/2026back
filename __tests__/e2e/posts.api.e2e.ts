@@ -7,6 +7,8 @@ import { postsTestManager } from "../managers/postsTestManager";
 import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
 import { validBasicAuthLoginPass } from "../../src/middlewares/auth-middlewares/basic-auth-middleware";
 import { blogsTestManager } from "../managers/blogsTestManager";
+import { MongoMemoryServer } from "mongodb-memory-server";
+import { runDB, stopDB } from "../../src/repositories/db";
 
 let blog: IBlogModel;
 let post: IPostModel;
@@ -23,11 +25,19 @@ const updatePostData: ICreatePostModel = {
 };
 
 describe("postsRouter", () => {
+  let mongoServer: MongoMemoryServer;
   beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+    await runDB(uri);
+
     await request(app).delete(RouterPaths.test_delete);
   });
 
-  afterAll(async () => {});
+  afterAll(async () => {
+    await stopDB();
+    await mongoServer.stop();
+  });
 
   it("get: should return empty array of posts and 200", async () => {
     await request(app).get(RouterPaths.posts).expect(200, []);
@@ -40,14 +50,14 @@ describe("postsRouter", () => {
   });
 
   it("post: should return 401 in attempt to create post when user has no auth credentials", async () => {
-    postsTestManager.createPost({
+    await postsTestManager.createPost({
       inputData: updatePostData,
       expectedStatusCode: HTTP_STATUSES.UNAUTHORIZED_401,
     });
   });
 
   it("post: should return 401 in attempt to create post when user has wrong auth credentials", async () => {
-    postsTestManager.createPost({
+    await postsTestManager.createPost({
       inputData: updatePostData,
       expectedStatusCode: HTTP_STATUSES.UNAUTHORIZED_401,
       authorizationCredentials: "Basic wrong_user:wrong_pass",
@@ -55,7 +65,7 @@ describe("postsRouter", () => {
   });
 
   it("post: should return 400 in attempt to create post with unexisting blog id", async () => {
-    postsTestManager.createPost({
+    await postsTestManager.createPost({
       inputData: updatePostData,
       expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
       authorizationCredentials: validBasicAuthLoginPass,

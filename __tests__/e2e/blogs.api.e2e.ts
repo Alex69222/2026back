@@ -7,6 +7,7 @@ import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
 import { validBasicAuthLoginPass } from "../../src/middlewares/auth-middlewares/basic-auth-middleware";
 import { MongoClient } from "mongodb";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import { runDB, stopDB } from "../../src/repositories/db";
 
 let blog: IBlogModel;
 const updatedData: ICreateBlogModel = {
@@ -16,20 +17,18 @@ const updatedData: ICreateBlogModel = {
 };
 
 describe("/blogsRouter", () => {
-  // let mongoServer: MongoMemoryServer;
-  // let client: MongoClient;
+  let mongoServer: MongoMemoryServer;
   beforeAll(async () => {
-    // mongoServer = await MongoMemoryServer.create();
-    // process.env.MONGO_URI = mongoServer.getUri();
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+    await runDB(uri);
 
-    // client = new MongoClient(process.env.MONGO_URI);
-    // await client.connect();
     await request(app).delete(RouterPaths.test_delete);
   });
 
   afterAll(async () => {
-    // await client.close();
-    // await mongoServer.stop();
+    await stopDB();
+    await mongoServer.stop();
   });
   it("get: should return empty array of blogs and 200", async () => {
     await request(app).get(RouterPaths.blogs).expect(200, []);
@@ -47,7 +46,7 @@ describe("/blogsRouter", () => {
       description: "Best blog description",
       websiteUrl: "https://best-blog.com",
     };
-    blogsTestManager.createBlog({
+    await blogsTestManager.createBlog({
       inputData: correctInputData,
       expectedStatusCode: HTTP_STATUSES.UNAUTHORIZED_401,
     });
@@ -59,7 +58,7 @@ describe("/blogsRouter", () => {
       description: "Best blog description",
       websiteUrl: "https://best-blog.com",
     };
-    blogsTestManager.createBlog({
+    await blogsTestManager.createBlog({
       inputData: correctInputData,
       expectedStatusCode: HTTP_STATUSES.UNAUTHORIZED_401,
       authorizationCredentials: "Basic wrong_user:wrong_pass",
@@ -72,32 +71,32 @@ describe("/blogsRouter", () => {
       websiteUrl: "https://best-blog.com",
     };
 
-    blogsTestManager.createBlog({
+    await blogsTestManager.createBlog({
       inputData: { ...incorrectInputData, name: "a".repeat(16) },
       expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
       authorizationCredentials: validBasicAuthLoginPass,
     });
-    blogsTestManager.createBlog({
+    await blogsTestManager.createBlog({
       inputData: { ...incorrectInputData, name: "a".repeat(2) },
       expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
       authorizationCredentials: validBasicAuthLoginPass,
     });
-    blogsTestManager.createBlog({
+    await blogsTestManager.createBlog({
       inputData: { ...incorrectInputData, description: "a".repeat(501) },
       expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
       authorizationCredentials: validBasicAuthLoginPass,
     });
-    blogsTestManager.createBlog({
+    await blogsTestManager.createBlog({
       inputData: { ...incorrectInputData, description: "a".repeat(2) },
       expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
       authorizationCredentials: validBasicAuthLoginPass,
     });
-    blogsTestManager.createBlog({
+    await blogsTestManager.createBlog({
       inputData: { ...incorrectInputData, websiteUrl: "a".repeat(101) },
       expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
       authorizationCredentials: validBasicAuthLoginPass,
     });
-    blogsTestManager.createBlog({
+    await blogsTestManager.createBlog({
       inputData: { ...incorrectInputData, websiteUrl: "incorrect_url" },
       expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
       authorizationCredentials: validBasicAuthLoginPass,
