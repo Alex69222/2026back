@@ -1,11 +1,23 @@
 import { postsRepository } from "../repositories/posts-repository";
+import { IPaginationModel } from "../types/pagination/pagination-model";
 import { ICreatePostModel, IPostModel } from "../types/post-model";
+import { paginateItems } from "../utils/paginateItems";
+import { INormalizedQparams } from "../utils/qpNormalizer";
 import { blogsService } from "./blogs-service";
 
 export const postsService = {
-  async getPosts(): Promise<Array<IPostModel>> {
-    const posts = await postsRepository.getPosts();
-    return posts;
+  async getPosts(
+    qp: INormalizedQparams,
+  ): Promise<IPaginationModel<IPostModel>> {
+    const totalCount = await postsRepository.getPostsCount();
+    const items = await postsRepository.getPosts(qp);
+    const result: IPaginationModel<IPostModel> = paginateItems({
+      items,
+      page: qp.pageNumber,
+      pageSize: qp.pageSize,
+      totalCount,
+    });
+    return result;
   },
 
   async getPostById(id: string): Promise<IPostModel | null> {

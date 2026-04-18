@@ -1,10 +1,23 @@
 import { blogsRepository } from "../repositories/blogs-repository";
 import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
+import { IPaginationModel } from "../types/pagination/pagination-model";
+import { paginateItems } from "../utils/paginateItems";
+import { INormalizedQparams } from "../utils/qpNormalizer";
 
 export const blogsService = {
-  async getBlogs(): Promise<Array<IBlogModel>> {
-    const blogs = await blogsRepository.getBlogs();
-    return blogs;
+  async getBlogs(
+    qp: INormalizedQparams,
+  ): Promise<IPaginationModel<IBlogModel>> {
+    const totalCount = await blogsRepository.getBlogsCount();
+    const items = await blogsRepository.getBlogs(qp);
+
+    const result: IPaginationModel<IBlogModel> = paginateItems({
+      items,
+      page: qp.pageNumber,
+      pageSize: qp.pageSize,
+      totalCount,
+    });
+    return result;
   },
 
   async getBlogById(id: string): Promise<IBlogModel | null> {

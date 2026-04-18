@@ -13,11 +13,13 @@ import { matchedData } from "express-validator";
 import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
 import { unexpectedErrorMsgJson } from "../utils/errors";
 import { blogsService } from "../domain/blogs-service";
+import { qpNormalizer } from "../utils/qpNormalizer";
 
 export const blogsRouter = Router();
 
 blogsRouter.get("/", async (req: Request, res: Response) => {
-  const blogs = await blogsService.getBlogs();
+  const normalizedQp = qpNormalizer(req.query);
+  const blogs = await blogsService.getBlogs(normalizedQp);
   res.send(blogs);
 });
 

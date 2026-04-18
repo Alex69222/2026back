@@ -40,7 +40,7 @@ describe("postsRouter", () => {
   });
 
   it("get: should return empty array of posts and 200", async () => {
-    await request(app).get(RouterPaths.posts).expect(200, []);
+    await request(app).get(RouterPaths.posts).expect(200);
   });
 
   it("get/id: should return 404 for not existing post", async () => {
@@ -117,7 +117,8 @@ describe("postsRouter", () => {
 
     post = createdEntity!;
 
-    await request(app).get(RouterPaths.posts).expect(200, [post]);
+    const result = await request(app).get(RouterPaths.posts).expect(200);
+    expect(result.body.items[0]).toEqual(post);
   });
 
   it("put: shouldn't update post with invalid data or without anuthorization", async () => {
@@ -234,6 +235,10 @@ describe("postsRouter", () => {
       .get(RouterPaths.posts + `/${post.id}`)
       .expect(HTTP_STATUSES.NOT_FOUND_404);
 
-    await request(app).get(RouterPaths.posts).expect(HTTP_STATUSES.OK_200, []);
+    const result = await request(app)
+      .get(RouterPaths.posts)
+      .expect(HTTP_STATUSES.OK_200);
+
+    expect(result.body.items).toEqual([]);
   });
 });

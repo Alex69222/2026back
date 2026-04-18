@@ -14,10 +14,12 @@ import { matchedData } from "express-validator";
 import { ICreatePostModel } from "../types/post-model";
 import { unexpectedErrorMsgJson } from "../utils/errors";
 import { postsService } from "../domain/posts-service";
+import { qpNormalizer } from "../utils/qpNormalizer";
 export const postsRouter = Router();
 
 postsRouter.get("/", async (req: Request, res: Response) => {
-  const posts = await postsService.getPosts();
+  const normalizedQp = qpNormalizer(req.query);
+  const posts = await postsService.getPosts(normalizedQp);
   res.send(posts);
 });
 

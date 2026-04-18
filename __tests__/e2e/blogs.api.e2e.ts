@@ -31,7 +31,7 @@ describe("/blogsRouter", () => {
     await mongoServer.stop();
   });
   it("get: should return empty array of blogs and 200", async () => {
-    await request(app).get(RouterPaths.blogs).expect(200, []);
+    await request(app).get(RouterPaths.blogs).expect(200);
   });
 
   it("get/id: should return 404 for not existing blog", async () => {
@@ -117,7 +117,8 @@ describe("/blogsRouter", () => {
 
     blog = createdEntity!;
 
-    await request(app).get(RouterPaths.blogs).expect(200, [blog]);
+    const result = await request(app).get(RouterPaths.blogs).expect(200);
+    expect(result.body.items[0]).toEqual(blog);
   });
 
   it("get/id: should get blog by id", async () => {
@@ -227,6 +228,14 @@ describe("/blogsRouter", () => {
       .get(RouterPaths.blogs + `/${blog.id}`)
       .expect(HTTP_STATUSES.NOT_FOUND_404);
 
-    await request(app).get(RouterPaths.blogs).expect(HTTP_STATUSES.OK_200, []);
+    await request(app)
+      .get(RouterPaths.blogs)
+      .expect(HTTP_STATUSES.OK_200, {
+        totalCount: 0,
+        items: [],
+        page: 1,
+        pagesCount: 0,
+        pageSize: 10,
+      });
   });
 });

@@ -1,10 +1,21 @@
 import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
+import { INormalizedQparams } from "../utils/qpNormalizer";
 import { blogsCollection } from "./db";
 
 export const blogsRepository = {
-  async getBlogs(): Promise<Array<IBlogModel>> {
+  async getBlogsCount(): Promise<number> {
+    const blogsCount = await blogsCollection.countDocuments({});
+    return blogsCount;
+  },
+  async getBlogs(qp: INormalizedQparams): Promise<Array<IBlogModel>> {
+    const filter = qp.searchNameTerm
+      ? { name: { $regex: qp.searchNameTerm, $options: "i" } }
+      : {};
     const blogs = await blogsCollection
-      .find({}, { projection: { _id: 0 } })
+      .find(filter, { projection: { _id: 0 } })
+      .limit(qp.pageSize)
+      .skip((qp.pageNumber - 1) * qp.pageSize)
+      .sort({ [qp.sortBy]: qp.sortDirection })
       .toArray();
     return blogs;
   },
