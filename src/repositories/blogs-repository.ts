@@ -1,45 +1,58 @@
 import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
-
-const blogs: Array<IBlogModel> = [];
+import { blogsCollection } from "./db";
 
 export const blogsRepository = {
-  getBlogs() {
+  async getBlogs(): Promise<Array<IBlogModel>> {
+    const blogs = await blogsCollection
+      .find({}, { projection: { _id: 0 } })
+      .toArray();
     return blogs;
   },
 
-  getBlogById(id: string): IBlogModel | undefined {
-    const blog = blogs.find((v) => v.id === id);
+  async getBlogById(id: string): Promise<IBlogModel | null> {
+    const blog = await blogsCollection.findOne(
+      { id },
+      { projection: { _id: 0 } },
+    );
     return blog;
   },
 
-  addBlog(blogInputModel: ICreateBlogModel) {
+  async addBlog(blogInputModel: ICreateBlogModel): Promise<IBlogModel> {
     const blog: IBlogModel = {
       ...blogInputModel,
       id: new Date().toISOString(),
     };
-    blogs.push(blog);
-
+    await blogsCollection.insertOne(blog);
+    const tempBlog = blog as any;
+    delete tempBlog._id;
     return blog;
   },
 
-  updateBlog(id: string, blogInputModel: ICreateBlogModel) {
-    const blog = blogs.find((v) => v.id === id);
+  async updateBlog(
+    id: string,
+    blogInputModel: ICreateBlogModel,
+  ): Promise<boolean> {
+    const result = await blogsCollection.updateOne(
+      { id },
+      {
+        $set: {
+          name: blogInputModel.name,
+          description: blogInputModel.description,
+          websiteUrl: blogInputModel.websiteUrl,
+        },
+      },
+    );
 
-    if (!blog) return false;
-    blog.name = blogInputModel.name;
-    blog.description = blogInputModel.description;
-    blog.websiteUrl = blogInputModel.websiteUrl;
-
-    return true;
+    return result.matchedCount === 1;
   },
-  deleteBlogById(id: string) {
-    const blogIndex = blogs.findIndex((p) => p.id === id);
-    if (blogIndex === -1) return false;
-    blogs.splice(blogIndex, 1);
-    return true;
+  async deleteBlogById(id: string): Promise<boolean> {
+    const result = await blogsCollection.deleteOne({ id });
+
+    return result.deletedCount === 1;
   },
 
-  deleteBlogs() {
-    blogs.length = 0;
+  async deleteBlogs(): Promise<boolean> {
+    const result = await blogsCollection.deleteMany({});
+    return result.acknowledged;
   },
 };

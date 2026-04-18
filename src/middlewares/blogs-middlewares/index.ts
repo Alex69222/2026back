@@ -27,7 +27,7 @@ export const validateBlogExistsMiddleware = async (
   next: NextFunction,
 ) => {
   const paramId = req.params.id.toString();
-  const blog = blogsRepository.getBlogById(paramId);
+  const blog = await blogsRepository.getBlogById(paramId);
 
   if (!blog) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   next();

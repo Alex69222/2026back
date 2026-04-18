@@ -15,13 +15,14 @@ import { unexpectedErrorMsgJson } from "../utils/errors";
 
 export const blogsRouter = Router();
 
-blogsRouter.get("/", (req: Request, res: Response) => {
-  res.send(blogsRepository.getBlogs());
+blogsRouter.get("/", async (req: Request, res: Response) => {
+  const blogs = await blogsRepository.getBlogs();
+  res.send(blogs);
 });
 
-blogsRouter.get("/:id", (req: Request, res: Response) => {
+blogsRouter.get("/:id", async (req: Request, res: Response) => {
   const paramId = req.params.id.toString();
-  const blog = blogsRepository.getBlogById(paramId);
+  const blog = await blogsRepository.getBlogById(paramId);
   if (!blog) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   res.send(blog);
 });
@@ -33,10 +34,10 @@ blogsRouter.post(
   validateBlogDescriptionMiddleware,
   validateBlogWebsiteUrlMiddleware,
   inputValidationMiddleware,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const data: ICreateBlogModel = matchedData(req);
 
-    const blog = blogsRepository.addBlog(data);
+    const blog = await blogsRepository.addBlog(data);
     res.status(HTTP_STATUSES.CREATED_201).send(blog);
   },
 );
@@ -49,12 +50,12 @@ blogsRouter.put(
   validateBlogDescriptionMiddleware,
   validateBlogWebsiteUrlMiddleware,
   inputValidationMiddleware,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const paramId = req.params.id.toString();
 
     const data: ICreateBlogModel = matchedData(req);
 
-    const updated = blogsRepository.updateBlog(paramId, data);
+    const updated = await blogsRepository.updateBlog(paramId, data);
 
     updated
       ? res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
@@ -66,10 +67,10 @@ blogsRouter.delete(
   "/:id",
   basicAuthMiddleware,
   validateBlogExistsMiddleware,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const paramId = req.params.id.toString();
 
-    const deleted = blogsRepository.deleteBlogById(paramId);
+    const deleted = await blogsRepository.deleteBlogById(paramId);
 
     res.sendStatus(
       deleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400,

@@ -7,7 +7,6 @@ import { postsTestManager } from "../managers/postsTestManager";
 import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
 import { validBasicAuthLoginPass } from "../../src/middlewares/auth-middlewares/basic-auth-middleware";
 import { blogsTestManager } from "../managers/blogsTestManager";
-import { set } from "supertest/lib/cookies";
 
 let blog: IBlogModel;
 let post: IPostModel;
@@ -27,6 +26,8 @@ describe("postsRouter", () => {
   beforeAll(async () => {
     await request(app).delete(RouterPaths.test_delete);
   });
+
+  afterAll(async () => {});
 
   it("get: should return empty array of posts and 200", async () => {
     await request(app).get(RouterPaths.posts).expect(200, []);

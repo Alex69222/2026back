@@ -40,8 +40,8 @@ export const validatePostExistsMiddleware = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const paramId = await req.params.id.toString();
-  const post = postsRepository.getPostById(paramId);
+  const paramId = req.params.id.toString();
+  const post = await postsRepository.getPostById(paramId);
   if (!post) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   next();
 };

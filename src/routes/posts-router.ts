@@ -15,13 +15,14 @@ import { ICreatePostModel } from "../types/post-model";
 import { unexpectedErrorMsgJson } from "../utils/errors";
 export const postsRouter = Router();
 
-postsRouter.get("/", (req: Request, res: Response) => {
-  res.send(postsRepository.getPosts());
+postsRouter.get("/", async (req: Request, res: Response) => {
+  const posts = await postsRepository.getPosts();
+  res.send(posts);
 });
 
-postsRouter.get("/:id", (req: Request, res: Response) => {
+postsRouter.get("/:id", async (req: Request, res: Response) => {
   const paramId = req.params.id.toString();
-  const post = postsRepository.getPostById(paramId);
+  const post = await postsRepository.getPostById(paramId);
   if (!post) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   res.send(post);
 });
@@ -34,9 +35,9 @@ postsRouter.post(
   validatePostContentMiddleware,
   validatePostBlogIdMiddleware,
   inputValidationMiddleware,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const data: ICreatePostModel = matchedData(req);
-    const post = postsRepository.addPost(data);
+    const post = await postsRepository.addPost(data);
 
     if (!post)
       return res
@@ -56,11 +57,11 @@ postsRouter.put(
   validatePostContentMiddleware,
   validatePostBlogIdMiddleware,
   inputValidationMiddleware,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const paramId = req.params.id.toString();
     const data: ICreatePostModel = matchedData(req);
 
-    const updated = postsRepository.updatePost(paramId, data);
+    const updated = await postsRepository.updatePost(paramId, data);
 
     updated
       ? res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
@@ -72,9 +73,9 @@ postsRouter.delete(
   "/:id",
   basicAuthMiddleware,
   validatePostExistsMiddleware,
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const paramId = req.params.id.toString();
-    const deleted = postsRepository.deletePostById(paramId);
+    const deleted = await postsRepository.deletePostById(paramId);
 
     res.sendStatus(
       deleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400,

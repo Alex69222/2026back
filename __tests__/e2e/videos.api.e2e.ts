@@ -17,6 +17,7 @@ describe("/videos-router", () => {
   beforeAll(async () => {
     await request(app).delete(RouterPaths.test_delete);
   });
+
   it("should return 200 and empty array", async () => {
     await request(app).get(RouterPaths.videos).expect(200, []);
   });

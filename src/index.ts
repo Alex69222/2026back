@@ -10,6 +10,7 @@ import { blogsRepository } from "./repositories/blogs-repository";
 import { postsRepository } from "./repositories/posts-repository";
 import { blogsRouter } from "./routes/blogs-router";
 import { postsRouter } from "./routes/posts-router";
+import { runDB } from "./repositories/db";
 
 const baseUrl = "/api";
 
@@ -40,18 +41,24 @@ app.get("/", (req: Request, res: Response) => {
   res.send(message);
 });
 
-app.delete(RouterPaths.test_delete, (req: Request, res: Response) => {
+app.delete(RouterPaths.test_delete, async (req: Request, res: Response) => {
   videosRepository.clearVideos();
-  blogsRepository.deleteBlogs();
-  postsRepository.deletePosts();
+  await blogsRepository.deleteBlogs();
+  await postsRepository.deletePosts();
   dataBase.authors = [];
   dataBase.authorVideoBindings = [];
   res.sendStatus(204);
 });
 
-if (process.env.NODE_ENV !== "test") {
+export const startApp = async () => {
+  await runDB();
+
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
   });
+};
+if (process.env.NODE_ENV !== "test") {
+  startApp();
 }
+
 export default app;

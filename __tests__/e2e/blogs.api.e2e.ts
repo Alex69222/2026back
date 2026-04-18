@@ -5,6 +5,8 @@ import { IBlogModel, ICreateBlogModel } from "../../src/types/blog-model";
 import { blogsTestManager } from "../managers/blogsTestManager";
 import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
 import { validBasicAuthLoginPass } from "../../src/middlewares/auth-middlewares/basic-auth-middleware";
+import { MongoClient } from "mongodb";
+import { MongoMemoryServer } from "mongodb-memory-server";
 
 let blog: IBlogModel;
 const updatedData: ICreateBlogModel = {
@@ -12,11 +14,23 @@ const updatedData: ICreateBlogModel = {
   description: "Best blog in the world description",
   websiteUrl: "https://best-blog-in-the-world.com",
 };
+
 describe("/blogsRouter", () => {
+  // let mongoServer: MongoMemoryServer;
+  // let client: MongoClient;
   beforeAll(async () => {
+    // mongoServer = await MongoMemoryServer.create();
+    // process.env.MONGO_URI = mongoServer.getUri();
+
+    // client = new MongoClient(process.env.MONGO_URI);
+    // await client.connect();
     await request(app).delete(RouterPaths.test_delete);
   });
 
+  afterAll(async () => {
+    // await client.close();
+    // await mongoServer.stop();
+  });
   it("get: should return empty array of blogs and 200", async () => {
     await request(app).get(RouterPaths.blogs).expect(200, []);
   });

@@ -1,20 +1,26 @@
+import { ObjectId } from "mongodb";
 import { ICreatePostModel, IPostModel } from "../types/post-model";
 import { blogsRepository } from "./blogs-repository";
-
-const posts: Array<IPostModel> = [];
+import { postsCollection } from "./db";
 
 export const postsRepository = {
-  getPosts() {
+  async getPosts(): Promise<Array<IPostModel>> {
+    const posts = await postsCollection
+      .find({}, { projection: { _id: 0 } })
+      .toArray();
     return posts;
   },
 
-  getPostById(id: string) {
-    const post = posts.find((v) => v.id === id);
+  async getPostById(id: string): Promise<IPostModel | null> {
+    const post = await postsCollection.findOne(
+      { id },
+      { projection: { _id: 0 } },
+    );
     return post;
   },
 
-  addPost(postInputModel: ICreatePostModel) {
-    const blog = blogsRepository.getBlogById(postInputModel.blogId);
+  async addPost(postInputModel: ICreatePostModel): Promise<IPostModel | false> {
+    const blog = await blogsRepository.getBlogById(postInputModel.blogId);
     if (!blog) return false;
 
     const post: IPostModel = {
@@ -23,37 +29,51 @@ export const postsRepository = {
       blogName: blog.name,
     };
 
-    posts.push(post);
+    await postsCollection.insertOne(post);
+    const tempPost = post as any;
+    delete tempPost._id;
+
     return post;
   },
 
-  updatePost(id: string, postInputModel: ICreatePostModel) {
-    const post = posts.find((p) => p.id === id);
+  async updatePost(
+    id: string,
+    postInputModel: ICreatePostModel,
+  ): Promise<boolean> {
+    const post = await postsCollection.findOne({ id });
+
     if (!post) return false;
     let blogName = post.blogName;
 
     if (post.blogId !== postInputModel.blogId) {
-      const blog = blogsRepository.getBlogById(postInputModel.blogId);
+      const blog = await blogsRepository.getBlogById(postInputModel.blogId);
       if (!blog) return false;
       blogName = blog.name;
     }
-    post.title = postInputModel.title;
-    post.blogId = postInputModel.blogId;
-    post.blogName = blogName;
-    post.content = postInputModel.content;
-    post.shortDescription = postInputModel.shortDescription;
 
-    return true;
+    const result = await postsCollection.updateOne(
+      { id },
+      {
+        $set: {
+          title: postInputModel.title,
+          blogId: postInputModel.blogId,
+          content: postInputModel.content,
+          shortDescription: postInputModel.shortDescription,
+          blogName,
+        },
+      },
+    );
+
+    return result.matchedCount === 1;
   },
 
-  deletePostById(id: string) {
-    const postIndex = posts.findIndex((p) => p.id === id);
-    if (postIndex === -1) return false;
-    posts.splice(postIndex, 1);
-    return true;
+  async deletePostById(id: string): Promise<boolean> {
+    const result = await postsCollection.deleteOne({ id });
+    return result.deletedCount === 1;
   },
 
-  deletePosts() {
-    posts.length = 0;
+  async deletePosts(): Promise<boolean> {
+    const result = await postsCollection.deleteMany({});
+    return result.acknowledged;
   },
 };
