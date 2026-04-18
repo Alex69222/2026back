@@ -17,7 +17,7 @@ export const blogsRepository = {
     return blog;
   },
 
-  async addBlog(blogInputModel: ICreateBlogModel): Promise<IBlogModel> {
+  async addBlog(blogInputModel: IBlogModel): Promise<IBlogModel> {
     const blog: IBlogModel = {
       ...blogInputModel,
       id: new Date().toISOString(),

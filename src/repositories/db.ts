@@ -1,7 +1,6 @@
-import { Collection, Db, MongoClient } from "mongodb";
+import { MongoClient } from "mongodb";
 import { IPostModel } from "../types/post-model";
 import { IBlogModel } from "../types/blog-model";
-// import { MongoMemoryServer } from "mongodb-memory-server";
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
 
 let client: MongoClient = new MongoClient(MONGO_URI);
@@ -31,6 +30,10 @@ export async function runDB() {
     console.log(e);
     await client.close();
   }
+}
+
+export async function stopDB() {
+  await client.close();
 }
 // const getClient = async () => {
 //   let client: MongoClient;

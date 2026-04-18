@@ -19,17 +19,7 @@ export const postsRepository = {
     return post;
   },
 
-  async addPost(postInputModel: ICreatePostModel): Promise<IPostModel | false> {
-    const blog = await blogsRepository.getBlogById(postInputModel.blogId);
-    if (!blog) return false;
-
-    const post: IPostModel = {
-      ...postInputModel,
-      id: new Date().toISOString(),
-      blogName: blog.name,
-      createdAt: new Date().toISOString(),
-    };
-
+  async addPost(post: IPostModel): Promise<IPostModel | false> {
     await postsCollection.insertOne(post);
     const tempPost = post as any;
     delete tempPost._id;
@@ -40,26 +30,13 @@ export const postsRepository = {
   async updatePost(
     id: string,
     postInputModel: ICreatePostModel,
+    blogName: string,
   ): Promise<boolean> {
-    const post = await postsCollection.findOne({ id });
-
-    if (!post) return false;
-    let blogName = post.blogName;
-
-    if (post.blogId !== postInputModel.blogId) {
-      const blog = await blogsRepository.getBlogById(postInputModel.blogId);
-      if (!blog) return false;
-      blogName = blog.name;
-    }
-
     const result = await postsCollection.updateOne(
       { id },
       {
         $set: {
-          title: postInputModel.title,
-          blogId: postInputModel.blogId,
-          content: postInputModel.content,
-          shortDescription: postInputModel.shortDescription,
+          ...postInputModel,
           blogName,
         },
       },
