@@ -21,6 +21,8 @@ export const blogsRepository = {
     const blog: IBlogModel = {
       ...blogInputModel,
       id: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      isMembership: false,
     };
     await blogsCollection.insertOne(blog);
     const tempBlog = blog as any;

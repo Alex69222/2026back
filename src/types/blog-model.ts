@@ -3,6 +3,8 @@ export interface IBlogModel {
   name: string;
   description: string;
   websiteUrl: string;
+  isMembership: boolean;
+  createdAt: string; // $date-time
 }
 export interface ICreateBlogModel {
   name: string;

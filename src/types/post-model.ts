@@ -5,6 +5,7 @@ export interface IPostModel {
   content: string;
   blogId: string;
   blogName: string;
+  createdAt: string; // $date-time
 }
 
 export interface ICreatePostModel {

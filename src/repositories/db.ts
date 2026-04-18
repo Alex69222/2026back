@@ -1,13 +1,10 @@
 import { Collection, Db, MongoClient } from "mongodb";
 import { IPostModel } from "../types/post-model";
 import { IBlogModel } from "../types/blog-model";
-import { MongoMemoryServer } from "mongodb-memory-server";
+// import { MongoMemoryServer } from "mongodb-memory-server";
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
 
 let client: MongoClient = new MongoClient(MONGO_URI);
-// let client: MongoClient = new MongoClient(
-//   "mongodb+srv://dev:kJsl9tQ2599w1Ql7@cluster0.ue3rjyw.mongodb.net/?appName=Cluster0",
-// );
 
 export const DB_KEYS = {
   DB_NAME: "bloggers_platform",

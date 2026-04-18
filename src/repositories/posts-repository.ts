@@ -27,6 +27,7 @@ export const postsRepository = {
       ...postInputModel,
       id: new Date().toISOString(),
       blogName: blog.name,
+      createdAt: new Date().toISOString(),
     };
 
     await postsCollection.insertOne(post);
