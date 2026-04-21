@@ -8,9 +8,10 @@ import { blogsService } from "./blogs-service";
 export const postsService = {
   async getPosts(
     qp: INormalizedQparams,
+    filter?: Record<string, string | number>,
   ): Promise<IPaginationModel<IPostModel>> {
-    const totalCount = await postsRepository.getPostsCount();
-    const items = await postsRepository.getPosts(qp);
+    const totalCount = await postsRepository.getPostsCount(filter);
+    const items = await postsRepository.getPosts(qp, filter);
     const result: IPaginationModel<IPostModel> = paginateItems({
       items,
       page: qp.pageNumber,

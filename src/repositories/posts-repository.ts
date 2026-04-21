@@ -1,17 +1,28 @@
-import { ObjectId } from "mongodb";
 import { ICreatePostModel, IPostModel } from "../types/post-model";
-import { blogsRepository } from "./blogs-repository";
 import { postsCollection } from "./db";
 import { INormalizedQparams } from "../utils/qpNormalizer";
 
 export const postsRepository = {
-  async getPostsCount(): Promise<number> {
-    const postsCount = await postsCollection.countDocuments({});
+  async getPostsCount(
+    filter?: Record<string, string | number>,
+  ): Promise<number> {
+    const queryFilter = filter || {};
+
+    const postsCount = await postsCollection.countDocuments(queryFilter);
+    if (Array.from(Object.keys(queryFilter))) {
+      console.log(queryFilter);
+      console.log(postsCount);
+    }
+
     return postsCount;
   },
-  async getPosts(qp: INormalizedQparams): Promise<Array<IPostModel>> {
+  async getPosts(
+    qp: INormalizedQparams,
+    filter?: Record<string, string | number>,
+  ): Promise<Array<IPostModel>> {
+    const queryFilter = filter || {};
     const posts = await postsCollection
-      .find({}, { projection: { _id: 0 } })
+      .find(queryFilter, { projection: { _id: 0 } })
       .limit(qp.pageSize)
       .skip((qp.pageNumber - 1) * qp.pageSize)
       .sort({ [qp.sortBy]: qp.sortDirection })

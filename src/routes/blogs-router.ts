@@ -14,6 +14,13 @@ import { inputValidationMiddleware } from "../middlewares/input-validation-middl
 import { unexpectedErrorMsgJson } from "../utils/errors";
 import { blogsService } from "../domain/blogs-service";
 import { qpNormalizer } from "../utils/qpNormalizer";
+import {
+  validatePostContentMiddleware,
+  validatePostShortDescriptionMiddleware,
+  validatePostTitleMiddleware,
+} from "../middlewares/posts-middleware";
+import { ICreatePostModel } from "../types/post-model";
+import { postsService } from "../domain/posts-service";
 
 export const blogsRouter = Router();
 
@@ -42,6 +49,42 @@ blogsRouter.post(
 
     const blog = await blogsService.addBlog(data);
     res.status(HTTP_STATUSES.CREATED_201).send(blog);
+  },
+);
+
+blogsRouter.get(
+  "/:id/posts",
+  validateBlogExistsMiddleware,
+  async (req: Request, res: Response) => {
+    const normalizedQp = qpNormalizer(req.query);
+    const posts = await postsService.getPosts(normalizedQp, {
+      blogId: req.params.id.toString(),
+    });
+    res.send(posts);
+  },
+);
+
+blogsRouter.post(
+  "/:id/posts",
+  basicAuthMiddleware,
+  validatePostTitleMiddleware,
+  validatePostShortDescriptionMiddleware,
+  validatePostContentMiddleware,
+  validateBlogExistsMiddleware,
+  inputValidationMiddleware,
+  async (req: Request, res: Response) => {
+    const data: ICreatePostModel = matchedData(req);
+    const post = await postsService.addPost({
+      ...data,
+      blogId: req.params.id.toString(),
+    });
+
+    if (!post)
+      return res
+        .status(HTTP_STATUSES.BAD_REQUEST_400)
+        .json(unexpectedErrorMsgJson);
+
+    res.status(HTTP_STATUSES.CREATED_201).send(post);
   },
 );
 
