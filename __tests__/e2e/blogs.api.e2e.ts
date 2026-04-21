@@ -379,4 +379,75 @@ describe("/blogsRouter", () => {
       expect(result3.body.items.length).toBe(1);
     });
   });
+
+  describe("test filter by searchNameTerm", () => {
+    it("should filter and count blogs matched by searchNameTerm", async () => {
+      await request(app).delete(RouterPaths.test_delete);
+
+      const name1 = "blog";
+      const name2 = "best vlog";
+      await blogsTestManager.createBlog({
+        inputData: { ...updatedData, name: name1 + 1 },
+        expectedStatusCode: HTTP_STATUSES.CREATED_201,
+        authorizationCredentials: validBasicAuthLoginPass,
+      });
+
+      await blogsTestManager.createBlog({
+        inputData: { ...updatedData, name: name1 + 2 },
+        expectedStatusCode: HTTP_STATUSES.CREATED_201,
+        authorizationCredentials: validBasicAuthLoginPass,
+      });
+
+      await blogsTestManager.createBlog({
+        inputData: { ...updatedData, name: name1 + 3 },
+        expectedStatusCode: HTTP_STATUSES.CREATED_201,
+        authorizationCredentials: validBasicAuthLoginPass,
+      });
+
+      await blogsTestManager.createBlog({
+        inputData: { ...updatedData, name: name2 + 1 },
+        expectedStatusCode: HTTP_STATUSES.CREATED_201,
+        authorizationCredentials: validBasicAuthLoginPass,
+      });
+
+      await blogsTestManager.createBlog({
+        inputData: { ...updatedData, name: name2 + 2 },
+        expectedStatusCode: HTTP_STATUSES.CREATED_201,
+        authorizationCredentials: validBasicAuthLoginPass,
+      });
+
+      await blogsTestManager.createBlog({
+        inputData: { ...updatedData, name: name2 + 3 },
+        expectedStatusCode: HTTP_STATUSES.CREATED_201,
+        authorizationCredentials: validBasicAuthLoginPass,
+      });
+      await blogsTestManager.createBlog({
+        inputData: { ...updatedData, name: name2 + 4 },
+        expectedStatusCode: HTTP_STATUSES.CREATED_201,
+        authorizationCredentials: validBasicAuthLoginPass,
+      });
+
+      const result = await request(app).get(RouterPaths.blogs).expect(200);
+
+      expect(result.body.totalCount).toBe(7);
+
+      const result2 = await request(app)
+        .get(RouterPaths.blogs)
+        .query({
+          searchNameTerm: name1,
+        })
+        .expect(200);
+
+      expect(result2.body.totalCount).toBe(3);
+
+      const result3 = await request(app)
+        .get(RouterPaths.blogs)
+        .query({
+          searchNameTerm: name2,
+        })
+        .expect(200);
+
+      expect(result3.body.totalCount).toBe(4);
+    });
+  });
 });

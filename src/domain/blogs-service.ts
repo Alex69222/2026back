@@ -8,7 +8,8 @@ export const blogsService = {
   async getBlogs(
     qp: INormalizedQparams,
   ): Promise<IPaginationModel<IBlogModel>> {
-    const totalCount = await blogsRepository.getBlogsCount();
+    const filter = qp.searchNameTerm ? { name: qp.searchNameTerm } : undefined;
+    const totalCount = await blogsRepository.getBlogsCount(filter);
     const items = await blogsRepository.getBlogs(qp);
 
     const result: IPaginationModel<IBlogModel> = paginateItems({

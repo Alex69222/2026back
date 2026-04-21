@@ -9,10 +9,6 @@ export const postsRepository = {
     const queryFilter = filter || {};
 
     const postsCount = await postsCollection.countDocuments(queryFilter);
-    if (Array.from(Object.keys(queryFilter))) {
-      console.log(queryFilter);
-      console.log(postsCount);
-    }
 
     return postsCount;
   },

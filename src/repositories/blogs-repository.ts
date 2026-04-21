@@ -3,10 +3,17 @@ import { INormalizedQparams } from "../utils/qpNormalizer";
 import { blogsCollection } from "./db";
 
 export const blogsRepository = {
-  async getBlogsCount(): Promise<number> {
-    const blogsCount = await blogsCollection.countDocuments({});
+  async getBlogsCount(
+    filter?: Record<string, string | number>,
+  ): Promise<number> {
+    const queryFilter = filter?.name
+      ? { name: { $regex: filter.name.toString(), $options: "i" } }
+      : {};
+    const blogsCount = await blogsCollection.countDocuments(queryFilter);
+
     return blogsCount;
   },
+
   async getBlogs(qp: INormalizedQparams): Promise<Array<IBlogModel>> {
     const filter = qp.searchNameTerm
       ? { name: { $regex: qp.searchNameTerm, $options: "i" } }
