@@ -4,21 +4,20 @@ import { postsRepository } from "../repositories/posts-repository";
 import { ICreatePostModel, IPostModel } from "../types/post-model";
 
 export const postsService = {
-  async addPost(postInputModel: ICreatePostModel): Promise<IPostModel | false> {
+  async addPost(postInputModel: ICreatePostModel): Promise<string | false> {
     const blog = await blogsQueryRepository.getBlogById(postInputModel.blogId);
     if (!blog) return false;
 
     const post: IPostModel = {
       ...postInputModel,
-      id: new Date().toISOString(),
+      id: "",
       blogName: blog.name,
       createdAt: new Date().toISOString(),
     };
 
-    const addedPost = await postsRepository.addPost(post);
-    const tempPost = addedPost as any;
-    delete tempPost._id;
-    return tempPost;
+    const addedPostId = await postsRepository.addPost(post);
+
+    return addedPostId;
   },
 
   async updatePost(

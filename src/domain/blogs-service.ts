@@ -2,16 +2,16 @@ import { blogsRepository } from "../repositories/blogs-repository";
 import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
 
 export const blogsService = {
-  async addBlog(blogInputModel: ICreateBlogModel): Promise<IBlogModel> {
+  async addBlog(blogInputModel: ICreateBlogModel): Promise<string> {
     const blog: IBlogModel = {
       ...blogInputModel,
-      id: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       isMembership: false,
+      id: "",
     };
 
-    const addedBlog = await blogsRepository.addBlog(blog);
-    return addedBlog;
+    const addedBlogId = await blogsRepository.addBlog(blog);
+    return addedBlogId;
   },
 
   async updateBlog(

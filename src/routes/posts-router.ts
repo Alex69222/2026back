@@ -11,8 +11,8 @@ import {
 } from "../middlewares/posts-middleware";
 import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
 import { matchedData } from "express-validator";
-import { ICreatePostModel } from "../types/post-model";
-import { unexpectedErrorMsgJson } from "../utils/errors";
+import { ICreatePostModel, IPostModel } from "../types/post-model";
+import { IErrorMessage, unexpectedErrorMsgJson } from "../utils/errors";
 import { postsService } from "../domain/posts-service";
 import { qpNormalizer } from "../utils/qpNormalizer";
 import { postsQueryRepository } from "../repositories/posts-query-repository";
@@ -39,16 +39,16 @@ postsRouter.post(
   validatePostContentMiddleware,
   validatePostBlogIdMiddleware,
   inputValidationMiddleware,
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response<IPostModel | IErrorMessage>) => {
     const data: ICreatePostModel = matchedData(req);
-    const post = await postsService.addPost(data);
+    const createdPostId = await postsService.addPost(data);
 
-    if (!post)
+    if (!createdPostId)
       return res
         .status(HTTP_STATUSES.BAD_REQUEST_400)
         .json(unexpectedErrorMsgJson);
-
-    res.status(HTTP_STATUSES.CREATED_201).send(post);
+    const post = await postsQueryRepository.getPostById(createdPostId);
+    res.status(HTTP_STATUSES.CREATED_201).send(post!);
   },
 );
 

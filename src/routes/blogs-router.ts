@@ -8,7 +8,7 @@ import {
   validateBlogNameMiddleware,
   validateBlogWebsiteUrlMiddleware,
 } from "../middlewares/blogs-middlewares";
-import { ICreateBlogModel } from "../types/blog-model";
+import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
 import { matchedData } from "express-validator";
 import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
 import { unexpectedErrorMsgJson } from "../utils/errors";
@@ -46,11 +46,12 @@ blogsRouter.post(
   validateBlogDescriptionMiddleware,
   validateBlogWebsiteUrlMiddleware,
   inputValidationMiddleware,
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response<IBlogModel>) => {
     const data: ICreateBlogModel = matchedData(req);
-
-    const blog = await blogsService.addBlog(data);
-    res.status(HTTP_STATUSES.CREATED_201).send(blog);
+    const createdBlogId = await blogsService.addBlog(data);
+    const createdBlog = await blogsQueryRepository.getBlogById(createdBlogId);
+    if (!createdBlog) return res.status(HTTP_STATUSES.BAD_REQUEST_400);
+    res.status(HTTP_STATUSES.CREATED_201).send(createdBlog);
   },
 );
 

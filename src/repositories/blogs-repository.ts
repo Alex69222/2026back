@@ -3,17 +3,15 @@ import { INormalizedQparams } from "../utils/qpNormalizer";
 import { blogsCollection } from "./db";
 
 export const blogsRepository = {
-  async addBlog(blogInputModel: IBlogModel): Promise<IBlogModel> {
+  async addBlog(blogInputModel: IBlogModel): Promise<string> {
     const blog: IBlogModel = {
       ...blogInputModel,
       id: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      isMembership: false,
     };
     await blogsCollection.insertOne(blog);
     const tempBlog = blog as any;
     delete tempBlog._id;
-    return blog;
+    return blog.id;
   },
 
   async updateBlog(
