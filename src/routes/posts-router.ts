@@ -15,17 +15,18 @@ import { ICreatePostModel } from "../types/post-model";
 import { unexpectedErrorMsgJson } from "../utils/errors";
 import { postsService } from "../domain/posts-service";
 import { qpNormalizer } from "../utils/qpNormalizer";
+import { postsQueryRepository } from "../repositories/posts-query-repository";
 export const postsRouter = Router();
 
 postsRouter.get("/", async (req: Request, res: Response) => {
   const normalizedQp = qpNormalizer(req.query);
-  const posts = await postsService.getPosts(normalizedQp);
+  const posts = await postsQueryRepository.getPosts(normalizedQp);
   res.send(posts);
 });
 
 postsRouter.get("/:id", async (req: Request, res: Response) => {
   const paramId = req.params.id.toString();
-  const post = await postsService.getPostById(paramId);
+  const post = await postsQueryRepository.getPostById(paramId);
   if (!post) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   res.send(post);
 });

@@ -1,8 +1,8 @@
 import { body } from "express-validator";
-import { blogsRepository } from "../../repositories/blogs-repository";
 import { NextFunction, Request, Response } from "express";
-import { postsRepository } from "../../repositories/posts-repository";
 import { HTTP_STATUSES } from "../../utils/httpStatuses";
+import { blogsQueryRepository } from "../../repositories/blogs-query-repositiry";
+import { postsQueryRepository } from "../../repositories/posts-query-repository";
 
 export const validatePostTitleMiddleware = body("title")
   .isString()
@@ -29,7 +29,7 @@ export const validatePostBlogIdMiddleware = body("blogId")
   .withMessage("Provide blog id")
   .bail()
   .custom(async (id) => {
-    const blog = await blogsRepository.getBlogById(id);
+    const blog = await blogsQueryRepository.getBlogById(id);
     if (!blog) {
       throw new Error("Blog doesn't exist");
     }
@@ -41,7 +41,7 @@ export const validatePostExistsMiddleware = async (
   next: NextFunction,
 ) => {
   const paramId = req.params.id.toString();
-  const post = await postsRepository.getPostById(paramId);
+  const post = await postsQueryRepository.getPostById(paramId);
   if (!post) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   next();
 };

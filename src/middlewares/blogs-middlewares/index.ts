@@ -1,7 +1,7 @@
 import { body } from "express-validator";
 import { NextFunction, Request, Response } from "express";
-import { blogsRepository } from "../../repositories/blogs-repository";
 import { HTTP_STATUSES } from "../../utils/httpStatuses";
+import { blogsQueryRepository } from "../../repositories/blogs-query-repositiry";
 export const validateBlogNameMiddleware = body("name")
   .isString()
   .trim()
@@ -27,7 +27,7 @@ export const validateBlogExistsMiddleware = async (
   next: NextFunction,
 ) => {
   const paramId = req.params.id.toString();
-  const blog = await blogsRepository.getBlogById(paramId);
+  const blog = await blogsQueryRepository.getBlogById(paramId);
 
   if (!blog) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   next();

@@ -21,18 +21,20 @@ import {
 } from "../middlewares/posts-middleware";
 import { ICreatePostModel } from "../types/post-model";
 import { postsService } from "../domain/posts-service";
+import { blogsQueryRepository } from "../repositories/blogs-query-repositiry";
+import { postsQueryRepository } from "../repositories/posts-query-repository";
 
 export const blogsRouter = Router();
 
 blogsRouter.get("/", async (req: Request, res: Response) => {
   const normalizedQp = qpNormalizer(req.query);
-  const blogs = await blogsService.getBlogs(normalizedQp);
+  const blogs = await blogsQueryRepository.getBlogs(normalizedQp);
   res.send(blogs);
 });
 
 blogsRouter.get("/:id", async (req: Request, res: Response) => {
   const paramId = req.params.id.toString();
-  const blog = await blogsService.getBlogById(paramId);
+  const blog = await blogsQueryRepository.getBlogById(paramId);
   if (!blog) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   res.send(blog);
 });
@@ -57,7 +59,7 @@ blogsRouter.get(
   validateBlogExistsMiddleware,
   async (req: Request, res: Response) => {
     const normalizedQp = qpNormalizer(req.query);
-    const posts = await postsService.getPosts(normalizedQp, {
+    const posts = await postsQueryRepository.getPosts(normalizedQp, {
       blogId: req.params.id.toString(),
     });
     res.send(posts);

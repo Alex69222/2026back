@@ -1,33 +1,11 @@
+import { blogsQueryRepository } from "../repositories/blogs-query-repositiry";
+import { postsQueryRepository } from "../repositories/posts-query-repository";
 import { postsRepository } from "../repositories/posts-repository";
-import { IPaginationModel } from "../types/pagination/pagination-model";
 import { ICreatePostModel, IPostModel } from "../types/post-model";
-import { paginateItems } from "../utils/paginateItems";
-import { INormalizedQparams } from "../utils/qpNormalizer";
-import { blogsService } from "./blogs-service";
 
 export const postsService = {
-  async getPosts(
-    qp: INormalizedQparams,
-    filter?: Record<string, string | number>,
-  ): Promise<IPaginationModel<IPostModel>> {
-    const totalCount = await postsRepository.getPostsCount(filter);
-    const items = await postsRepository.getPosts(qp, filter);
-    const result: IPaginationModel<IPostModel> = paginateItems({
-      items,
-      page: qp.pageNumber,
-      pageSize: qp.pageSize,
-      totalCount,
-    });
-    return result;
-  },
-
-  async getPostById(id: string): Promise<IPostModel | null> {
-    const post = await postsRepository.getPostById(id);
-    return post;
-  },
-
   async addPost(postInputModel: ICreatePostModel): Promise<IPostModel | false> {
-    const blog = await blogsService.getBlogById(postInputModel.blogId);
+    const blog = await blogsQueryRepository.getBlogById(postInputModel.blogId);
     if (!blog) return false;
 
     const post: IPostModel = {
@@ -47,11 +25,13 @@ export const postsService = {
     id: string,
     postInputModel: ICreatePostModel,
   ): Promise<boolean> {
-    const post = await postsRepository.getPostById(id);
+    const post = await postsQueryRepository.getPostById(id);
     if (!post) return false;
     let blogName = post.blogName;
     if (post.blogId !== postInputModel.blogId) {
-      const blog = await blogsService.getBlogById(postInputModel.blogId);
+      const blog = await blogsQueryRepository.getBlogById(
+        postInputModel.blogId,
+      );
       if (!blog) return false;
       blogName = blog.name;
     }
