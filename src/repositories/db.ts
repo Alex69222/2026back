@@ -1,6 +1,7 @@
 import { Collection, MongoClient } from "mongodb";
 import { IPostModel } from "../types/post-model";
 import { IBlogModel } from "../types/blog-model";
+import { IUserBDModel } from "../types/users-model";
 
 let client: MongoClient;
 
@@ -9,12 +10,15 @@ export const DB_KEYS = {
   collections: {
     BLOGS: "blogs",
     POSTS: "posts",
+    USERS: "users",
   },
 };
 
 export let postsCollection: Collection<IPostModel>;
 
 export let blogsCollection: Collection<IBlogModel>;
+
+export let usersCollection: Collection<IUserBDModel>;
 
 export async function runDB(dbURI: string) {
   client = new MongoClient(dbURI);
@@ -26,6 +30,9 @@ export async function runDB(dbURI: string) {
     .db(DB_KEYS.DB_NAME)
     .collection<IBlogModel>(DB_KEYS.collections.BLOGS);
 
+  usersCollection = client
+    .db(DB_KEYS.DB_NAME)
+    .collection<IUserBDModel>(DB_KEYS.collections.USERS);
   try {
     await client.connect();
     await client.db("blogs").command({ ping: 1 });

@@ -11,6 +11,9 @@ import { postsRepository } from "./repositories/posts-repository";
 import { blogsRouter } from "./routes/blogs-router";
 import { postsRouter } from "./routes/posts-router";
 import { runDB } from "./repositories/db";
+import { usersRouter } from "./routes/users.router";
+import { usersRepository } from "./repositories/users-repository";
+import { authRouter } from "./routes/auth-router";
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
 const baseUrl = "/api";
 
@@ -21,6 +24,8 @@ export const RouterPaths = {
   videos: baseUrl + "/videos",
   authors: baseUrl + "/authors",
   authorsVideosBingings: "/authors-videos-bindings",
+  users: "/users",
+  auth: "/auth",
   test_delete: baseUrl + "/testing/all-data",
 };
 
@@ -28,12 +33,15 @@ const port = process.env.PORT || 3000;
 export const app = express();
 app.use(express.json());
 
+app.use(RouterPaths.blogs, blogsRouter);
+app.use(RouterPaths.posts, postsRouter);
+app.use(RouterPaths.users, usersRouter);
+app.use(RouterPaths.auth, authRouter);
+
 app.use(RouterPaths.products, productsRouter);
 app.use(RouterPaths.videos, videosRouter);
 app.use(RouterPaths.authors, authorsRouter);
 
-app.use(RouterPaths.blogs, blogsRouter);
-app.use(RouterPaths.posts, postsRouter);
 app.use(RouterPaths.authorsVideosBingings, authorsVideosBindingsRouter);
 
 app.get("/", (req: Request, res: Response) => {
@@ -45,6 +53,7 @@ app.delete(RouterPaths.test_delete, async (req: Request, res: Response) => {
   videosRepository.clearVideos();
   await blogsRepository.deleteBlogs();
   await postsRepository.deletePosts();
+  await usersRepository.deleteUsers();
   dataBase.authors = [];
   dataBase.authorVideoBindings = [];
   res.sendStatus(204);

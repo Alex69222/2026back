@@ -5,26 +5,20 @@ import { INormalizedQparams } from "../utils/qpNormalizer";
 import { blogsCollection } from "./db";
 
 export const blogsQueryRepository = {
-  async getBlogsCount(
-    filter?: Record<string, string | number>,
-  ): Promise<number> {
-    const queryFilter = filter?.name
-      ? { name: { $regex: filter.name.toString(), $options: "i" } }
-      : {};
-    const blogsCount = await blogsCollection.countDocuments(queryFilter);
+  async getBlogsCount(filter?: Record<any, any>): Promise<number> {
+    const blogsCount = await blogsCollection.countDocuments(filter);
 
     return blogsCount;
   },
   async getBlogs(
     qp: INormalizedQparams,
   ): Promise<IPaginationModel<IBlogModel>> {
-    const totalCountFilter = qp.searchNameTerm
-      ? { name: qp.searchNameTerm }
-      : undefined;
-    const totalCount = await this.getBlogsCount(totalCountFilter);
     const filter = qp.searchNameTerm
       ? { name: { $regex: qp.searchNameTerm, $options: "i" } }
       : {};
+
+    const totalCount = await this.getBlogsCount(filter);
+
     const blogs = await blogsCollection
       .find(filter, { projection: { _id: 0 } })
       .limit(qp.pageSize)

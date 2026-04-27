@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import request from "supertest";
 import { IBlogModel, ICreateBlogModel } from "../../src/types/blog-model";
 import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
@@ -15,9 +17,6 @@ export const blogsTestManager = {
       .set("Authorization", authorizationCredentials)
       .send(inputData);
 
-    if (response.status !== expectedStatusCode) {
-      console.log(response.body);
-    }
     expect(response.status).toBe(expectedStatusCode);
 
     let createdEntity;

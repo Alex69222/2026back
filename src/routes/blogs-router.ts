@@ -116,6 +116,7 @@ blogsRouter.delete(
   "/:id",
   basicAuthMiddleware,
   validateBlogExistsMiddleware,
+  inputValidationMiddleware,
   async (req: Request, res: Response) => {
     const paramId = req.params.id.toString();
 

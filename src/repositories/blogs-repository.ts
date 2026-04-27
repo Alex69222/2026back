@@ -9,8 +9,6 @@ export const blogsRepository = {
       id: new Date().toISOString(),
     };
     await blogsCollection.insertOne(blog);
-    const tempBlog = blog as any;
-    delete tempBlog._id;
     return blog.id;
   },
 
