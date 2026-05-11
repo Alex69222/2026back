@@ -40,9 +40,7 @@ export const usersService = {
     loginOrEmail: string,
     password: string,
   ): Promise<boolean> {
-    const user = await usersRepository.findUserByFilter({
-      $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
-    });
+    const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
     if (!user) return false;
     const tryHash = await this._generateHash(password, user.passwordSalt);
     return tryHash === user.passwordHash;

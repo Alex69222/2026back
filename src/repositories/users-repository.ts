@@ -2,6 +2,20 @@ import { usersCollection } from "./db";
 import { IUserBDModel } from "../types/users-model";
 
 export const usersRepository = {
+  async findUserByLoginOrEmail(
+    loginOrEmail: string,
+  ): Promise<IUserBDModel | null> {
+    const user = await usersCollection.findOne(
+      {
+        $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
+      },
+      {
+        projection: { _id: 0 },
+      },
+    );
+    if (!user) return null;
+    return user;
+  },
   async findUserByFilter(
     filter: Record<string, any>,
   ): Promise<IUserBDModel | null> {
