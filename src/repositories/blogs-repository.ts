@@ -1,5 +1,4 @@
 import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
-import { INormalizedQparams } from "../utils/qpNormalizer";
 import { blogsCollection } from "./db";
 
 export const blogsRepository = {

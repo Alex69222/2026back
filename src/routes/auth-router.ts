@@ -1,12 +1,14 @@
 import { Request, Response, Router } from "express";
 import {
   validateLoginOrEmailMiddleware,
-  validateUserLoginMiddleware,
   validateUserPasswordMiddleware,
 } from "../middlewares/users-middlewares";
 import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
 import { usersService } from "../domain/users-service";
 import { HTTP_STATUSES } from "../utils/httpStatuses";
+import { jwtService } from "../application/jwt-service";
+import { jwtAuthMiddleware } from "../middlewares/auth-middlewares/jwt-auth-middleware";
+import { IMeModel } from "../types/users-model";
 
 export const authRouter = Router();
 
@@ -16,12 +18,29 @@ authRouter.post(
   validateUserPasswordMiddleware,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
-    const success = await usersService.checkCredentials(
+    const user = await usersService.checkCredentials(
       req.body.loginOrEmail,
       req.body.password,
     );
-    res.sendStatus(
-      success ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.UNAUTHORIZED_401,
-    );
+
+    if (!user) {
+      return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+    } else {
+      const token = await jwtService.createJWT(user);
+      res.status(HTTP_STATUSES.OK_200).send({ accessToken: token });
+    }
+  },
+);
+
+authRouter.get(
+  "/me",
+  jwtAuthMiddleware,
+  async (req: Request, res: Response) => {
+    const me: IMeModel = {
+      login: req.user!.login,
+      email: req.user!.email,
+      userId: req.user!.id,
+    };
+    res.status(HTTP_STATUSES.OK_200).send(me);
   },
 );

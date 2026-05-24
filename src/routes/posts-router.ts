@@ -1,6 +1,6 @@
+import { HTTP_STATUSES } from "./../utils/httpStatuses";
 import { Request, Response, Router } from "express";
 
-import { HTTP_STATUSES } from "../utils/httpStatuses";
 import { basicAuthMiddleware } from "../middlewares/auth-middlewares/basic-auth-middleware";
 import {
   validatePostBlogIdMiddleware,
@@ -16,6 +16,10 @@ import { IErrorMessage, unexpectedErrorMsgJson } from "../utils/errors";
 import { postsService } from "../domain/posts-service";
 import { qpNormalizer } from "../utils/qpNormalizer";
 import { postsQueryRepository } from "../repositories/posts-query-repository";
+import { jwtAuthMiddleware } from "../middlewares/auth-middlewares/jwt-auth-middleware";
+import { validateCommentContentMiddleware } from "../middlewares/comment-middlewares";
+import { commentsService } from "../domain/comments-service";
+import { commentsQueryRepository } from "../repositories/comments-query-repository";
 export const postsRouter = Router();
 
 postsRouter.get("/", async (req: Request, res: Response) => {
@@ -62,6 +66,8 @@ postsRouter.put(
   validatePostBlogIdMiddleware,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
+    console.log("POST update");
+
     const paramId = req.params.id.toString();
     const data: ICreatePostModel = matchedData(req);
 
@@ -84,5 +90,38 @@ postsRouter.delete(
     res.sendStatus(
       deleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400,
     );
+  },
+);
+
+postsRouter.get(
+  "/:id/comments",
+  validatePostExistsMiddleware,
+  async (req: Request, res: Response) => {
+    const normalizedQp = qpNormalizer(req.query);
+
+    const comments = await commentsQueryRepository.getCommentsByPostId(
+      req.params.id.toString(),
+      normalizedQp,
+    );
+    res.send(comments);
+  },
+);
+postsRouter.post(
+  "/:id/comments",
+  jwtAuthMiddleware,
+  validatePostExistsMiddleware,
+  validateCommentContentMiddleware,
+  inputValidationMiddleware,
+  async (req: Request, res: Response) => {
+    const createdCommentId = await commentsService.createComment(
+      req.params.id.toString(),
+      req.user!,
+      req.body.content,
+    );
+
+    const createdComment =
+      await commentsQueryRepository.getCommentById(createdCommentId);
+
+    res.status(HTTP_STATUSES.CREATED_201).send(createdComment);
   },
 );

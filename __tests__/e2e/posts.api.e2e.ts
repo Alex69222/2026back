@@ -130,19 +130,20 @@ describe("postsRouter", () => {
   });
 
   describe("put", () => {
-    it("put: shouldn't update post with invalid data or without anuthorization", async () => {
-      await request(app)
+    it("put: shouldn't update post with invalid data or without authorization", async () => {
+      const result = await request(app)
         .put(RouterPaths.posts + `/${post.id}`)
-        .send(post)
-        .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+        .send(post);
 
-      await request(app)
+      expect(result.status).toBe(HTTP_STATUSES.UNAUTHORIZED_401);
+
+      const result2 = await request(app)
         .put(RouterPaths.posts + `/unexisting_post_id`)
         .set("Authorization", validBasicAuthLoginPass)
         .send({
           ...post,
-        })
-        .expect(HTTP_STATUSES.NOT_FOUND_404);
+        });
+      expect(result2.status).toBe(HTTP_STATUSES.NOT_FOUND_404);
 
       await request(app)
         .put(RouterPaths.posts + `/${post.id}`)

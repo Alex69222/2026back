@@ -35,6 +35,10 @@ export const usersRepository = {
     return user.id;
   },
 
+  async getUserById(id: string): Promise<IUserBDModel | null> {
+    const user = await usersCollection.findOne({ id });
+    return user;
+  },
   async deleteUserById(id: string): Promise<boolean> {
     const result = await usersCollection.deleteOne({ id });
 

@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import request from "supertest";
+import request, { Response } from "supertest";
 import { IBlogModel, ICreateBlogModel } from "../../src/types/blog-model";
 import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
 import { app, RouterPaths } from "../../src";
@@ -11,7 +11,10 @@ export const blogsTestManager = {
     inputData,
     expectedStatusCode = HTTP_STATUSES.CREATED_201,
     authorizationCredentials = "",
-  }: ITestManagerCreateData<ICreateBlogModel>) {
+  }: ITestManagerCreateData<ICreateBlogModel>): Promise<{
+    response: Response;
+    createdEntity: IBlogModel | undefined;
+  }> {
     const response = await request(app)
       .post(RouterPaths.blogs)
       .set("Authorization", authorizationCredentials)

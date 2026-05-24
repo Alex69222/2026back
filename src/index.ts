@@ -14,12 +14,15 @@ import { runDB } from "./repositories/db";
 import { usersRouter } from "./routes/users.router";
 import { usersRepository } from "./repositories/users-repository";
 import { authRouter } from "./routes/auth-router";
+import { commentsRepository } from "./repositories/comments-repository";
+import { commentsRouter } from "./routes/comments-router";
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
 const baseUrl = "/api";
 
 export const RouterPaths = {
   blogs: baseUrl + "/blogs",
   posts: baseUrl + "/posts",
+  comments: baseUrl + "/comments",
   products: baseUrl + "/products",
   videos: baseUrl + "/videos",
   authors: baseUrl + "/authors",
@@ -35,6 +38,7 @@ app.use(express.json());
 
 app.use(RouterPaths.blogs, blogsRouter);
 app.use(RouterPaths.posts, postsRouter);
+app.use(RouterPaths.comments, commentsRouter);
 app.use(RouterPaths.users, usersRouter);
 app.use(RouterPaths.auth, authRouter);
 
@@ -54,6 +58,7 @@ app.delete(RouterPaths.test_delete, async (req: Request, res: Response) => {
   await blogsRepository.deleteBlogs();
   await postsRepository.deletePosts();
   await usersRepository.deleteUsers();
+  await commentsRepository.deleteComments();
   dataBase.authors = [];
   dataBase.authorVideoBindings = [];
   res.sendStatus(204);

@@ -18,3 +18,9 @@ export interface ICreateUserModel {
   password: string;
   email: string;
 }
+
+export interface IMeModel {
+  email: string;
+  login: string;
+  userId: string;
+}

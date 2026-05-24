@@ -35,15 +35,20 @@ export const usersService = {
     const deleted = await usersRepository.deleteUserById(id);
     return deleted;
   },
+  async getUserById(id: string): Promise<IUserBDModel | null> {
+    const user = await usersRepository.getUserById(id);
 
+    return user;
+  },
   async checkCredentials(
     loginOrEmail: string,
     password: string,
-  ): Promise<boolean> {
+  ): Promise<false | IUserBDModel> {
     const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
     if (!user) return false;
     const tryHash = await this._generateHash(password, user.passwordSalt);
-    return tryHash === user.passwordHash;
+    if (tryHash !== user.passwordHash) return false;
+    return user;
   },
 
   async _generateHash(password: string, salt: string) {

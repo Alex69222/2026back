@@ -14,6 +14,8 @@ const createUserData: ICreateUserModel = {
   email: "superblogger@gmail.com",
 };
 
+let accessToken: string;
+
 describe("auth", () => {
   let mongoServer: MongoMemoryServer;
   beforeAll(async () => {
@@ -76,20 +78,42 @@ describe("auth", () => {
   });
 
   it("should login with correct credentials", async () => {
-    await request(app)
+    const data = await request(app)
       .post(RouterPaths.auth + "/login")
       .send({
         loginOrEmail: createUserData.email,
         password: createUserData.password,
       })
-      .expect(HTTP_STATUSES.NO_CONTENT_204);
+      .expect(HTTP_STATUSES.OK_200);
 
-    await request(app)
+    expect(data.body.accessToken).toEqual(expect.any(String));
+
+    const data2 = await request(app)
       .post(RouterPaths.auth + "/login")
       .send({
         loginOrEmail: createUserData.login,
         password: createUserData.password,
       })
-      .expect(HTTP_STATUSES.NO_CONTENT_204);
+      .expect(HTTP_STATUSES.OK_200);
+    expect(data2.body.accessToken).toEqual(expect.any(String));
+
+    accessToken = data2.body.accessToken;
+  });
+
+  it("401 error when try to get /me as unauthorized user", async () => {
+    await request(app)
+      .get(RouterPaths.auth + "/me")
+      .expect(HTTP_STATUSES.UNAUTHORIZED_401);
+  });
+
+  it("get current user info (/me)", async () => {
+    const result = await request(app)
+      .get(RouterPaths.auth + "/me")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .expect(HTTP_STATUSES.OK_200);
+
+    expect(result.body.login).toBe(createUserData.login);
+    expect(result.body.email).toBe(createUserData.email);
+    expect(result.body.login).toEqual(expect.any(String));
   });
 });
