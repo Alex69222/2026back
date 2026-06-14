@@ -49,4 +49,40 @@ export const usersRepository = {
     const result = await usersCollection.deleteMany({});
     return result.acknowledged;
   },
+  async findUserByConfirmationCode(code: string): Promise<IUserBDModel | null> {
+    const user = await usersCollection.findOne(
+      {
+        "emailConfirmation.con": code,
+      },
+      {
+        projection: { _id: 0 },
+      },
+    );
+    if (!user) return null;
+    return user;
+  },
+  async updateConfirmation(id: string): Promise<boolean> {
+    const result = await usersCollection.updateOne(
+      { id },
+      {
+        $set: {
+          "emailConfirmation.isConfirmed": true,
+        },
+      },
+    );
+
+    return result.modifiedCount === 1;
+  },
+  async updateConfirmationCode(id: string, code: string): Promise<boolean> {
+    const result = await usersCollection.updateOne(
+      { id },
+      {
+        $set: {
+          "emailConfirmation.confirmationCode": code,
+        },
+      },
+    );
+
+    return result.modifiedCount === 1;
+  },
 };

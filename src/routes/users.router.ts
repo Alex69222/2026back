@@ -24,14 +24,17 @@ usersRouter.post(
   validateUserEmailMiddleware,
   inputValidationMiddleware,
   async (req: Request, res: Response<IUserViewModel | IAPIErrorResult>) => {
-    const createdUserData = await usersService.createUser({
-      login: req.body.login,
-      email: req.body.email,
-      password: req.body.password,
-    });
+    const createdUserData = await usersService.createUser(
+      {
+        login: req.body.login,
+        email: req.body.email,
+        password: req.body.password,
+      },
+      { isConfirmed: true },
+    );
 
     if (!createdUserData[0]) {
-      res.status(HTTP_STATUSES.BAD_REQUEST_400).send(createdUserData[1]);
+      return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(createdUserData[1]);
     }
 
     const user = await usersQueryRepository.findUserByFilter({

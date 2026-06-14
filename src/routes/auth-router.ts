@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import {
   validateLoginOrEmailMiddleware,
+  validateUserEmailMiddleware,
+  validateUserLoginMiddleware,
   validateUserPasswordMiddleware,
 } from "../middlewares/users-middlewares";
 import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
@@ -42,5 +44,54 @@ authRouter.get(
       userId: req.user!.id,
     };
     res.status(HTTP_STATUSES.OK_200).send(me);
+  },
+);
+
+authRouter.post(
+  "/registration",
+  validateUserLoginMiddleware,
+  validateUserPasswordMiddleware,
+  validateUserEmailMiddleware,
+  inputValidationMiddleware,
+  async (req: Request, res: Response) => {
+    const createdUserData = await usersService.createUser(
+      {
+        login: req.body.login,
+        email: req.body.email,
+        password: req.body.password,
+      },
+      { isConfirmed: false },
+    );
+
+    if (!createdUserData[0]) {
+      return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(createdUserData[1]);
+    }
+    return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+  },
+);
+
+authRouter.post(
+  "/registration-confirmation",
+  async (req: Request, res: Response) => {
+    const confirmedData = await usersService.confirmEmail(req.body.code);
+    if (!confirmedData[0]) {
+      return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(confirmedData[1]);
+    }
+    return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+  },
+);
+
+authRouter.post(
+  "/registration-email-resending",
+  validateUserEmailMiddleware,
+  inputValidationMiddleware,
+  async (req: Request, res: Response) => {
+    const resentData = await usersService.resendConfirmationEmail(
+      req.body.email,
+    );
+    if (!resentData[0]) {
+      return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(resentData[1]);
+    }
+    return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
   },
 );

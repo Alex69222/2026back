@@ -11,6 +11,11 @@ export interface IUserBDModel {
   createdAt: string;
   passwordHash: string;
   passwordSalt: string;
+  emailConfirmation: {
+    confirmationCode: string;
+    isConfirmed: boolean;
+    expirationDate: Date;
+  };
 }
 
 export interface ICreateUserModel {

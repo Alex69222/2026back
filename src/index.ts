@@ -27,8 +27,8 @@ export const RouterPaths = {
   videos: baseUrl + "/videos",
   authors: baseUrl + "/authors",
   authorsVideosBingings: "/authors-videos-bindings",
-  users: "/users",
-  auth: "/auth",
+  users: baseUrl + "/users",
+  auth: baseUrl + "/auth",
   test_delete: baseUrl + "/testing/all-data",
 };
 
