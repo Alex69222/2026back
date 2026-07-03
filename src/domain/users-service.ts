@@ -1,3 +1,4 @@
+import { emailService, IEmailService } from "./../application/email-service";
 import { usersQueryRepository } from "../repositories/users-query-repository";
 import { usersRepository } from "../repositories/users-repository";
 import { IAPIErrorResult } from "../types/error/api-error";
@@ -5,8 +6,9 @@ import { ICreateUserModel, IUserBDModel } from "../types/users-model";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import { add } from "date-fns/add";
-import { emailService } from "../application/email-service";
-export const usersService = {
+// export const usersService = {
+export class usersServiceClass {
+  constructor(protected emailService: IEmailService) {}
   async createUser(
     userData: ICreateUserModel,
     options: {
@@ -48,7 +50,7 @@ export const usersService = {
 
     if (!isConfirmed) {
       try {
-        await emailService.sendConfirmEmailForRegistration(
+        await this.emailService.sendConfirmEmailForRegistration(
           user.login,
           user.email,
           emailConfirmation.confirmationCode,
@@ -72,17 +74,17 @@ export const usersService = {
     }
 
     return [true, userId];
-  },
+  }
 
   async deleteUserById(id: string) {
     const deleted = await usersRepository.deleteUserById(id);
     return deleted;
-  },
+  }
   async getUserById(id: string): Promise<IUserBDModel | null> {
     const user = await usersRepository.getUserById(id);
 
     return user;
-  },
+  }
   async checkCredentials(
     loginOrEmail: string,
     password: string,
@@ -93,12 +95,12 @@ export const usersService = {
     const tryHash = await this._generateHash(password, user.passwordSalt);
     if (tryHash !== user.passwordHash) return false;
     return user;
-  },
+  }
 
   async _generateHash(password: string, salt: string) {
     const hash = await bcrypt.hash(password, salt);
     return hash;
-  },
+  }
 
   async _validateUserIsUnique(
     login: string,
@@ -131,7 +133,7 @@ export const usersService = {
       ];
     }
     return [true];
-  },
+  }
   async confirmEmail(code: string): Promise<[true] | [false, IAPIErrorResult]> {
     const user = await usersRepository.findUserByConfirmationCode(code);
     if (!user) {
@@ -189,7 +191,7 @@ export const usersService = {
             ],
           },
         ];
-  },
+  }
   async resendConfirmationEmail(
     email: string,
   ): Promise<[true] | [false, IAPIErrorResult]> {
@@ -236,5 +238,7 @@ export const usersService = {
         },
       ];
     }
-  },
-};
+  }
+}
+
+export const usersService = new usersServiceClass(emailService);

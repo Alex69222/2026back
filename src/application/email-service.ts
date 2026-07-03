@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 let transport = nodemailer.createTransport({
   service: "gmail",
@@ -7,6 +8,19 @@ let transport = nodemailer.createTransport({
     pass: "gtsdasurflxfcelq",
   },
 });
+
+export interface IEmailService {
+  sendEmail: (
+    to: string,
+    subject: string,
+    html: string,
+  ) => Promise<SMTPTransport.SentMessageInfo>;
+  sendConfirmEmailForRegistration: (
+    login: string,
+    email: string,
+    confirmationCode: string,
+  ) => Promise<SMTPTransport.SentMessageInfo>;
+}
 
 export const emailService = {
   async sendEmail(to: string, subject: string, html: string) {
