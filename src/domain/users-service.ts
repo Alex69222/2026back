@@ -48,6 +48,9 @@ export class usersServiceClass {
     };
     const userId = await usersRepository.createUser(user);
 
+    console.log("userId: ", userId);
+    
+
     if (!isConfirmed) {
       try {
         await this.emailService.sendConfirmEmailForRegistration(

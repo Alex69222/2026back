@@ -1,5 +1,6 @@
 import { usersCollection } from "./db";
 import { IUserBDModel } from "../types/users-model";
+import { ObjectId } from "mongodb";
 
 export const usersRepository = {
   async findUserByLoginOrEmail(
@@ -28,7 +29,7 @@ export const usersRepository = {
   async createUser(userData: IUserBDModel) {
     const user = {
       ...userData,
-      id: new Date().toISOString(),
+      id: new ObjectId().toString(),
     };
 
     await usersCollection.insertOne(user);

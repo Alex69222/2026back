@@ -33,9 +33,17 @@ describe("Users Service", () => {
       const createdUser = await usersService.createUser(userData, {
         isConfirmed: false,
       });
-      console.log(createdUser);
-
-      expect(5).toBe(5);
+      
+      expect(createdUser[0]).toBe(true);
     });
+
+    it("should not create user. It exists", async () =>{
+       const createdUser = await usersService.createUser(userData, {
+        isConfirmed: false,
+      });
+      console.log(createdUser);
+      
+      expect(createdUser[0]).toBe(false);
+    })
   });
 });
