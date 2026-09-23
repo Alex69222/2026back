@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
 import { blogsCollection } from "./db";
 
@@ -5,7 +6,7 @@ export const blogsRepository = {
   async addBlog(blogInputModel: IBlogModel): Promise<string> {
     const blog: IBlogModel = {
       ...blogInputModel,
-      id: new Date().toISOString(),
+      id: new ObjectId().toString(),
     };
     await blogsCollection.insertOne(blog);
     return blog.id;
