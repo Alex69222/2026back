@@ -1,11 +1,11 @@
 import { usersCollection } from "./db";
-import { IUserBDModel } from "../types/users-model";
+import { IUserDBModel } from "../types/users-model";
 import { ObjectId } from "mongodb";
 
 export const usersRepository = {
   async findUserByLoginOrEmail(
     loginOrEmail: string,
-  ): Promise<IUserBDModel | null> {
+  ): Promise<IUserDBModel | null> {
     const user = await usersCollection.findOne(
       {
         $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
@@ -19,14 +19,14 @@ export const usersRepository = {
   },
   async findUserByFilter(
     filter: Record<string, any>,
-  ): Promise<IUserBDModel | null> {
+  ): Promise<IUserDBModel | null> {
     const user = await usersCollection.findOne(filter, {
       projection: { _id: 0 },
     });
     if (!user) return null;
     return user;
   },
-  async createUser(userData: IUserBDModel) {
+  async createUser(userData: IUserDBModel) {
     const user = {
       ...userData,
       id: new ObjectId().toString(),
@@ -36,7 +36,7 @@ export const usersRepository = {
     return user.id;
   },
 
-  async getUserById(id: string): Promise<IUserBDModel | null> {
+  async getUserById(id: string): Promise<IUserDBModel | null> {
     const user = await usersCollection.findOne({ id });
     return user;
   },
@@ -50,10 +50,10 @@ export const usersRepository = {
     const result = await usersCollection.deleteMany({});
     return result.acknowledged;
   },
-  async findUserByConfirmationCode(code: string): Promise<IUserBDModel | null> {
+  async findUserByConfirmationCode(code: string): Promise<IUserDBModel | null> {
     const user = await usersCollection.findOne(
       {
-        "emailConfirmation.con": code,
+        "emailConfirmation.confirmationCode": code,
       },
       {
         projection: { _id: 0 },

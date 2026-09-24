@@ -2,7 +2,7 @@ import { emailService, IEmailService } from "./../application/email-service";
 import { usersQueryRepository } from "../repositories/users-query-repository";
 import { usersRepository } from "../repositories/users-repository";
 import { IAPIErrorResult } from "../types/error/api-error";
-import { ICreateUserModel, IUserBDModel } from "../types/users-model";
+import { ICreateUserModel, IUserDBModel } from "../types/users-model";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import { add } from "date-fns/add";
@@ -29,7 +29,7 @@ export class usersServiceClass {
     );
 
     const isConfirmed = options.isConfirmed;
-    const emailConfirmation: IUserBDModel["emailConfirmation"] = {
+    const emailConfirmation: IUserDBModel["emailConfirmation"] = {
       isConfirmed,
       confirmationCode: uuidv4(),
       expirationDate: add(new Date(), {
@@ -38,7 +38,7 @@ export class usersServiceClass {
       }),
     };
 
-    const user: IUserBDModel = {
+    const user: IUserDBModel = {
       ...userData,
       id: "",
       passwordSalt,
@@ -48,8 +48,6 @@ export class usersServiceClass {
     };
     const userId = await usersRepository.createUser(user);
 
-    console.log("userId: ", userId);
-    
 
     if (!isConfirmed) {
       try {
@@ -83,7 +81,7 @@ export class usersServiceClass {
     const deleted = await usersRepository.deleteUserById(id);
     return deleted;
   }
-  async getUserById(id: string): Promise<IUserBDModel | null> {
+  async getUserById(id: string): Promise<IUserDBModel | null> {
     const user = await usersRepository.getUserById(id);
 
     return user;
@@ -91,7 +89,7 @@ export class usersServiceClass {
   async checkCredentials(
     loginOrEmail: string,
     password: string,
-  ): Promise<false | IUserBDModel> {
+  ): Promise<false | IUserDBModel> {
     const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
     if (!user) return false;
     if (!user.emailConfirmation.isConfirmed) return false;
@@ -144,7 +142,7 @@ export class usersServiceClass {
         false,
         {
           errorsMessages: [
-            { field: "email", message: "User with this email doesn't exist" },
+            { field: null, message: "Code doesn't exist" },
           ],
         },
       ];
@@ -155,16 +153,6 @@ export class usersServiceClass {
         {
           errorsMessages: [
             { field: null, message: "Email is alredy confirmed" },
-          ],
-        },
-      ];
-    }
-    if (user.emailConfirmation.confirmationCode !== code) {
-      return [
-        false,
-        {
-          errorsMessages: [
-            { field: code, message: "The provided code is wrong" },
           ],
         },
       ];

@@ -1,11 +1,11 @@
 import { commentsRepository } from "../repositories/comments-repository";
 import { ICommentModel } from "../types/comment-model";
-import { IUserBDModel } from "../types/users-model";
+import { IUserDBModel } from "../types/users-model";
 
 export const commentsService = {
   async createComment(
     postId: string,
-    user: IUserBDModel,
+    user: IUserDBModel,
     content: string,
   ): Promise<string> {
     const comment: ICommentModel = {

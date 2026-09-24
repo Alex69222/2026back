@@ -16,6 +16,8 @@ import { usersRepository } from "./repositories/users-repository";
 import { authRouter } from "./routes/auth-router";
 import { commentsRepository } from "./repositories/comments-repository";
 import { commentsRouter } from "./routes/comments-router";
+import cookieParser from "cookie-parser";
+import { jwtBlackListRepository } from "./repositories/jwt-blacklist-repository";
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
 const baseUrl = "/api";
 
@@ -35,6 +37,7 @@ export const RouterPaths = {
 const port = process.env.PORT || 3000;
 export const app = express();
 app.use(express.json());
+app.use(cookieParser())
 
 app.use(RouterPaths.blogs, blogsRouter);
 app.use(RouterPaths.posts, postsRouter);
@@ -59,6 +62,7 @@ app.delete(RouterPaths.test_delete, async (req: Request, res: Response) => {
   await postsRepository.deletePosts();
   await usersRepository.deleteUsers();
   await commentsRepository.deleteComments();
+  await jwtBlackListRepository.deleteJWTs();
   dataBase.authors = [];
   dataBase.authorVideoBindings = [];
   res.sendStatus(204);

@@ -85,7 +85,7 @@ describe("auth", () => {
         password: createUserData.password,
       })
       .expect(HTTP_STATUSES.OK_200);
-
+      
     expect(data.body.accessToken).toEqual(expect.any(String));
 
     const data2 = await request(app)

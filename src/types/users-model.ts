@@ -4,7 +4,7 @@ export interface IUserViewModel {
   email: string;
   createdAt: string;
 }
-export interface IUserBDModel {
+export interface IUserDBModel {
   id: string;
   login: string;
   email: string;

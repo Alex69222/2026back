@@ -11,6 +11,8 @@ import { HTTP_STATUSES } from "../utils/httpStatuses";
 import { jwtService } from "../application/jwt-service";
 import { jwtAuthMiddleware } from "../middlewares/auth-middlewares/jwt-auth-middleware";
 import { IMeModel } from "../types/users-model";
+import { jwtCookieMiddleware } from "../middlewares/auth-middlewares/jwt-cookie-middleware";
+import { jwtBlackListRepository } from "../repositories/jwt-blacklist-repository";
 
 export const authRouter = Router();
 
@@ -29,6 +31,8 @@ authRouter.post(
       return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
     } else {
       const token = await jwtService.createJWT(user);
+      const refreshToken = await jwtService.createRefreshToken(user);
+      res.cookie('refreshToken', refreshToken, {httpOnly: true,secure: true})
       res.status(HTTP_STATUSES.OK_200).send({ accessToken: token });
     }
   },
@@ -93,5 +97,26 @@ authRouter.post(
       return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(resentData[1]);
     }
     return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-  },
+  }
 );
+
+authRouter.post("/refresh-token", jwtCookieMiddleware, async(req: Request, res: Response) => {
+  const token = req.cookies.refreshToken;
+  await jwtBlackListRepository.addJWTtoBlackList(token);
+
+  const userId = await jwtService.getUserIdByToken(token);
+
+  if(!userId) return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+  const user = await usersService.getUserById(userId);
+
+  const accessToken = await jwtService.createJWT(user!);
+      const refreshToken = await jwtService.createRefreshToken(user!);
+      res.cookie('refreshToken', refreshToken, {httpOnly: true,secure: true})
+      res.status(HTTP_STATUSES.OK_200).send({ accessToken });
+})
+
+authRouter.post("/logout", jwtCookieMiddleware, async(req: Request, res: Response) => {
+  const token = req.cookies.refreshToken;
+  await jwtBlackListRepository.addJWTtoBlackList(token);
+  return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+})
