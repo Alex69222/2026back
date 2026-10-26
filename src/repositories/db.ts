@@ -3,6 +3,7 @@ import { IPostModel } from "../types/post-model";
 import { IBlogModel } from "../types/blog-model";
 import { IUserDBModel } from "../types/users-model";
 import { ICommentModel } from "../types/comment-model";
+import { IUserActiveSessionModel } from "../types/user-active-session-model";
 
 let client: MongoClient;
 
@@ -13,7 +14,8 @@ export const DB_KEYS = {
     POSTS: "posts",
     USERS: "users",
     COMMENTS: "comments",
-    JWT_BLACKLIST: "jwt_blacklist"
+    JWT_BLACKLIST: "jwt_blacklist",
+    USER_ACTIVE_SESSIONS: "user_active_sessions",
   },
 };
 
@@ -27,7 +29,9 @@ export let usersCollection: Collection<IUserDBModel>;
 
 export let commentsCollection: Collection<ICommentModel>;
 
-export let jwtBlacklistCollection: Collection<IJWTinBlackList>
+export let jwtBlacklistCollection: Collection<IJWTinBlackList>;
+
+export let userActiveSessionsCollection: Collection<IUserActiveSessionModel>;
 
 export async function runDB(dbURI: string) {
   client = new MongoClient(dbURI);
@@ -47,7 +51,13 @@ export async function runDB(dbURI: string) {
     .db(DB_KEYS.DB_NAME)
     .collection<ICommentModel>(DB_KEYS.collections.COMMENTS);
 
-  jwtBlacklistCollection = client.db(DB_KEYS.DB_NAME).collection<IJWTinBlackList>(DB_KEYS.collections.JWT_BLACKLIST)
+  jwtBlacklistCollection = client.db(DB_KEYS.DB_NAME).collection<IJWTinBlackList>(DB_KEYS.collections.JWT_BLACKLIST);
+
+  userActiveSessionsCollection = client
+    .db(DB_KEYS.DB_NAME)
+    .collection<IUserActiveSessionModel>(DB_KEYS.collections.USER_ACTIVE_SESSIONS);
+
+
   try {
     await client.connect();
     await client.db("blogs").command({ ping: 1 });
