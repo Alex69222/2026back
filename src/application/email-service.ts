@@ -2,10 +2,13 @@ import nodemailer from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 let transport = nodemailer.createTransport({
-  service: "gmail",
+
+  host: "smtp.yandex.ru",
+  port: 465,
+  secure: true,
   auth: {
-    user: "noreply.notifycations@gmail.com",
-    pass: "gtsdasurflxfcelq",
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_PASSWORD,
   },
 });
 
@@ -25,7 +28,7 @@ export interface IEmailService {
 export const emailService = {
   async sendEmail(to: string, subject: string, html: string) {
     const info = await transport.sendMail({
-      from: "BLOGGERS <noreply.notifications@gmail.com>",
+      from: "BLOGGERS <tartuga.amigo@yandex.ru>",
       to,
       subject,
       html,

@@ -17,7 +17,9 @@ import { authRouter } from "./routes/auth-router";
 import { commentsRepository } from "./repositories/comments-repository";
 import { commentsRouter } from "./routes/comments-router";
 import cookieParser from "cookie-parser";
-import { jwtBlackListRepository } from "./repositories/jwt-blacklist-repository";
+import { activeSessionsRepository } from "./repositories/active-sessions-repository";
+import { sessionsRouter } from "./routes/sessions-router";
+import { urlAccessRepository } from "./repositories/url-access-repository";
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
 const baseUrl = "/api";
 
@@ -31,19 +33,23 @@ export const RouterPaths = {
   authorsVideosBingings: "/authors-videos-bindings",
   users: baseUrl + "/users",
   auth: baseUrl + "/auth",
+  sessions: baseUrl + "/security/devices",
   test_delete: baseUrl + "/testing/all-data",
 };
 
 const port = process.env.PORT || 3000;
 export const app = express();
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
+app.set('trust proxy', true);
+
 
 app.use(RouterPaths.blogs, blogsRouter);
 app.use(RouterPaths.posts, postsRouter);
 app.use(RouterPaths.comments, commentsRouter);
 app.use(RouterPaths.users, usersRouter);
 app.use(RouterPaths.auth, authRouter);
+app.use(RouterPaths.sessions, sessionsRouter);
 
 app.use(RouterPaths.products, productsRouter);
 app.use(RouterPaths.videos, videosRouter);
@@ -62,7 +68,8 @@ app.delete(RouterPaths.test_delete, async (req: Request, res: Response) => {
   await postsRepository.deletePosts();
   await usersRepository.deleteUsers();
   await commentsRepository.deleteComments();
-  await jwtBlackListRepository.deleteJWTs();
+  await activeSessionsRepository.clearCollection();
+  await urlAccessRepository.clearAccessData();
   dataBase.authors = [];
   dataBase.authorVideoBindings = [];
   res.sendStatus(204);

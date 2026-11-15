@@ -8,7 +8,7 @@ export const validateUserLoginMiddleware = body("login")
   .trim()
   .isLength({ min: 3, max: 10 })
   .matches(/^[a-zA-Z0-9_-]*$/)
-  .withMessage("user login should be 3 to 15 letters or numbers");
+  .withMessage("user login should be 3 to 10 letters or numbers");
 
 export const validateUserPasswordMiddleware = body("password")
   .isString()

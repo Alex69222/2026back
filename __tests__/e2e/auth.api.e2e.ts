@@ -36,14 +36,14 @@ describe("auth", () => {
     await mongoServer.stop();
   });
 
-  it("shoud not login with incorrect user data", async () => {
+  it("should not login with incorrect user data", async () => {
     await request(app)
       .post(RouterPaths.auth + "/login")
       .send()
       .expect(HTTP_STATUSES.BAD_REQUEST_400);
   });
 
-  it("shoud not login with when user credentials are wrong", async () => {
+  it("should not login with when user credentials are wrong", async () => {
     await request(app)
       .post(RouterPaths.auth + "/login")
       .send({

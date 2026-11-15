@@ -58,6 +58,7 @@ export class usersServiceClass {
         );
         return [true, userId];
       } catch (e) {
+        console.log(e)
         await usersRepository.deleteUserById(userId);
         return [
           false,
@@ -196,15 +197,15 @@ export class usersServiceClass {
           ],
         },
       ];
-    if (!user.emailConfirmation.isConfirmed)
-      return [
-        false,
-        {
-          errorsMessages: [
-            { field: null, message: "Email is alredy confirmed" },
-          ],
-        },
-      ];
+    // if (!user.emailConfirmation.isConfirmed)
+    //   return [
+    //     false,
+    //     {
+    //       errorsMessages: [
+    //         { field: null, message: "Email is alredy confirmed" },
+    //       ],
+    //     },
+    //   ];
     const code = uuidv4();
 
     try {

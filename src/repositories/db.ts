@@ -4,6 +4,7 @@ import { IBlogModel } from "../types/blog-model";
 import { IUserDBModel } from "../types/users-model";
 import { ICommentModel } from "../types/comment-model";
 import { IUserActiveSessionModel } from "../types/user-active-session-model";
+import { IURLAccessModel } from "../types/url-access-model";
 
 let client: MongoClient;
 
@@ -14,12 +15,10 @@ export const DB_KEYS = {
     POSTS: "posts",
     USERS: "users",
     COMMENTS: "comments",
-    JWT_BLACKLIST: "jwt_blacklist",
     USER_ACTIVE_SESSIONS: "user_active_sessions",
+    URL_ACCESS: "url_access",
   },
 };
-
-interface IJWTinBlackList {value: string}
 
 export let postsCollection: Collection<IPostModel>;
 
@@ -29,9 +28,9 @@ export let usersCollection: Collection<IUserDBModel>;
 
 export let commentsCollection: Collection<ICommentModel>;
 
-export let jwtBlacklistCollection: Collection<IJWTinBlackList>;
-
 export let userActiveSessionsCollection: Collection<IUserActiveSessionModel>;
+
+export let urlAccessCollection: Collection<IURLAccessModel>;
 
 export async function runDB(dbURI: string) {
   client = new MongoClient(dbURI);
@@ -51,15 +50,21 @@ export async function runDB(dbURI: string) {
     .db(DB_KEYS.DB_NAME)
     .collection<ICommentModel>(DB_KEYS.collections.COMMENTS);
 
-  jwtBlacklistCollection = client.db(DB_KEYS.DB_NAME).collection<IJWTinBlackList>(DB_KEYS.collections.JWT_BLACKLIST);
-
   userActiveSessionsCollection = client
     .db(DB_KEYS.DB_NAME)
     .collection<IUserActiveSessionModel>(DB_KEYS.collections.USER_ACTIVE_SESSIONS);
 
+  urlAccessCollection = client
+    .db(DB_KEYS.DB_NAME)
+    .collection<IURLAccessModel>(DB_KEYS.collections.URL_ACCESS);
+
 
   try {
     await client.connect();
+    await urlAccessCollection.createIndex(
+      { date: 1 },
+      { expireAfterSeconds: 60 },
+    );
     await client.db("blogs").command({ ping: 1 });
     console.log("Connected successfully to mongo server");
   } catch (e) {

@@ -8,13 +8,14 @@ export const jwtAuthMiddleware = async (
   res: Response,
   next: NextFunction,
 ) => {
+  console.log("authorization header: ", req.headers.authorization)
   if (!req.headers.authorization) {
     return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   }
 
   const token = req.headers.authorization.split(" ")[1];
   const userId = await jwtService.getUserIdByToken(token);
-
+ console.log("userId: ", userId)
   if (!userId) {
     return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   }
