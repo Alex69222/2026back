@@ -1,8 +1,8 @@
-import { IBlogModel } from "../types/blog-model";
-import { IPaginationModel } from "../types/pagination/pagination-model";
-import { paginateItems } from "../utils/paginateItems";
-import { INormalizedQparams } from "../utils/qpNormalizer";
-import { blogsCollection } from "./db";
+import { IBlogModel } from '../types/blog-model';
+import { IPaginationModel } from '../types/pagination/pagination-model';
+import { paginateItems } from '../utils/paginateItems';
+import { INormalizedQparams } from '../utils/qpNormalizer';
+import { blogsCollection } from './db';
 
 export const blogsQueryRepository = {
   async getBlogsCount(filter?: Record<any, any>): Promise<number> {
@@ -10,12 +10,8 @@ export const blogsQueryRepository = {
 
     return blogsCount;
   },
-  async getBlogs(
-    qp: INormalizedQparams,
-  ): Promise<IPaginationModel<IBlogModel>> {
-    const filter = qp.searchNameTerm
-      ? { name: { $regex: qp.searchNameTerm, $options: "i" } }
-      : {};
+  async getBlogs(qp: INormalizedQparams): Promise<IPaginationModel<IBlogModel>> {
+    const filter = qp.searchNameTerm ? { name: { $regex: qp.searchNameTerm, $options: 'i' } } : {};
 
     const totalCount = await this.getBlogsCount(filter);
 
@@ -35,10 +31,7 @@ export const blogsQueryRepository = {
   },
 
   async getBlogById(id: string): Promise<IBlogModel | null> {
-    const blog = await blogsCollection.findOne(
-      { id },
-      { projection: { _id: 0 } },
-    );
+    const blog = await blogsCollection.findOne({ id }, { projection: { _id: 0 } });
     return blog;
   },
 };

@@ -1,30 +1,30 @@
 /// <reference types="jest" />
-import request from "supertest";
-import { app, RouterPaths } from "../../src";
-import { ICreatePostModel, IPostModel } from "../../src/types/post-model";
-import { IBlogModel, ICreateBlogModel } from "../../src/types/blog-model";
-import { postsTestManager } from "../managers/postsTestManager";
-import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
-import { validBasicAuthLoginPass } from "../../src/middlewares/auth-middlewares/basic-auth-middleware";
-import { blogsTestManager } from "../managers/blogsTestManager";
-import { MongoMemoryServer } from "mongodb-memory-server";
-import { runDB, stopDB } from "../../src/repositories/db";
+import request from 'supertest';
+import { app, RouterPaths } from '../../src';
+import { ICreatePostModel, PostModel } from '../../src/types/post-model';
+import { IBlogModel, ICreateBlogModel } from '../../src/types/blog-model';
+import { postsTestManager } from '../managers/postsTestManager';
+import { HTTP_STATUSES } from '../../src/utils/httpStatuses';
+import { validBasicAuthLoginPass } from '../../src/middlewares/auth-middlewares/basic-auth-middleware';
+import { blogsTestManager } from '../managers/blogsTestManager';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { runDB, stopDB } from '../../src/repositories/db';
 
 let blog: IBlogModel;
-let post: IPostModel;
+let post: PostModel;
 const updateBlogData: ICreateBlogModel = {
-  name: "blog",
-  description: "blog description",
-  websiteUrl: "https://blog.com",
+  name: 'blog',
+  description: 'blog description',
+  websiteUrl: 'https://blog.com',
 };
 const updatePostData: ICreatePostModel = {
-  blogId: "unexisting_blog_id",
-  title: "post_title",
-  shortDescription: "post short description",
-  content: "post content",
+  blogId: 'unexisting_blog_id',
+  title: 'post_title',
+  shortDescription: 'post short description',
+  content: 'post content',
 };
 
-describe("postsRouter", () => {
+describe('postsRouter', () => {
   let mongoServer: MongoMemoryServer;
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -39,35 +39,35 @@ describe("postsRouter", () => {
     await mongoServer.stop();
   });
 
-  describe("get", () => {
-    it("get: should return empty array of posts and 200", async () => {
+  describe('get', () => {
+    it('get: should return empty array of posts and 200', async () => {
       await request(app).get(RouterPaths.posts).expect(200);
     });
 
-    it("get/id: should return 404 for not existing post", async () => {
+    it('get/id: should return 404 for not existing post', async () => {
       await request(app)
-        .get(RouterPaths.posts + "/999")
+        .get(RouterPaths.posts + '/999')
         .expect(404);
     });
   });
 
-  describe("post", () => {
-    it("post: should return 401 in attempt to create post when user has no auth credentials", async () => {
+  describe('post', () => {
+    it('post: should return 401 in attempt to create post when user has no auth credentials', async () => {
       await postsTestManager.createPost({
         inputData: updatePostData,
         expectedStatusCode: HTTP_STATUSES.UNAUTHORIZED_401,
       });
     });
 
-    it("post: should return 401 in attempt to create post when user has wrong auth credentials", async () => {
+    it('post: should return 401 in attempt to create post when user has wrong auth credentials', async () => {
       await postsTestManager.createPost({
         inputData: updatePostData,
         expectedStatusCode: HTTP_STATUSES.UNAUTHORIZED_401,
-        authorizationCredentials: "Basic wrong_user:wrong_pass",
+        authorizationCredentials: 'Basic wrong_user:wrong_pass',
       });
     });
 
-    it("post: should return 400 in attempt to create post with unexisting blog id", async () => {
+    it('post: should return 400 in attempt to create post with unexisting blog id', async () => {
       await postsTestManager.createPost({
         inputData: updatePostData,
         expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
@@ -75,7 +75,7 @@ describe("postsRouter", () => {
       });
     });
 
-    it("post: 400 attempt to create post with invalid data", async () => {
+    it('post: 400 attempt to create post with invalid data', async () => {
       const { createdEntity } = await blogsTestManager.createBlog({
         inputData: updateBlogData,
         expectedStatusCode: HTTP_STATUSES.CREATED_201,
@@ -88,7 +88,7 @@ describe("postsRouter", () => {
         inputData: {
           ...updatePostData,
           blogId: blog.id,
-          title: "a".repeat(31),
+          title: 'a'.repeat(31),
         },
         expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
         authorizationCredentials: validBasicAuthLoginPass,
@@ -98,7 +98,7 @@ describe("postsRouter", () => {
         inputData: {
           ...updatePostData,
           blogId: blog.id,
-          shortDescription: "a".repeat(101),
+          shortDescription: 'a'.repeat(101),
         },
         expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
         authorizationCredentials: validBasicAuthLoginPass,
@@ -108,14 +108,14 @@ describe("postsRouter", () => {
         inputData: {
           ...updatePostData,
           blogId: blog.id,
-          content: "a".repeat(1001),
+          content: 'a'.repeat(1001),
         },
         expectedStatusCode: HTTP_STATUSES.BAD_REQUEST_400,
         authorizationCredentials: validBasicAuthLoginPass,
       });
     });
 
-    it("post: should create post with valid data", async () => {
+    it('post: should create post with valid data', async () => {
       const { createdEntity } = await postsTestManager.createPost({
         inputData: { ...updatePostData, blogId: blog.id },
         expectedStatusCode: HTTP_STATUSES.CREATED_201,
@@ -129,7 +129,7 @@ describe("postsRouter", () => {
     });
   });
 
-  describe("put", () => {
+  describe('put', () => {
     it("put: shouldn't update post with invalid data or without authorization", async () => {
       const result = await request(app)
         .put(RouterPaths.posts + `/${post.id}`)
@@ -139,7 +139,7 @@ describe("postsRouter", () => {
 
       const result2 = await request(app)
         .put(RouterPaths.posts + `/unexisting_post_id`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .send({
           ...post,
         });
@@ -147,50 +147,50 @@ describe("postsRouter", () => {
 
       await request(app)
         .put(RouterPaths.posts + `/${post.id}`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .send({
           ...post,
-          blogId: "unexisting_blog_id",
+          blogId: 'unexisting_blog_id',
         })
         .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
       await request(app)
         .put(RouterPaths.posts + `/${post.id}`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .send({
           ...post,
-          title: "a".repeat(31),
+          title: 'a'.repeat(31),
         })
         .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
       await request(app)
         .put(RouterPaths.posts + `/${post.id}`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .send({
           ...post,
-          shortDescription: "a".repeat(101),
+          shortDescription: 'a'.repeat(101),
         })
         .expect(HTTP_STATUSES.BAD_REQUEST_400);
 
       await request(app)
         .put(RouterPaths.posts + `/${post.id}`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .send({
           ...post,
-          content: "a".repeat(1001),
+          content: 'a'.repeat(1001),
         })
         .expect(HTTP_STATUSES.BAD_REQUEST_400);
     });
 
-    it("should update post", async () => {
+    it('should update post', async () => {
       await request(app)
         .put(RouterPaths.posts + `/${post.id}`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .send({
           ...post,
-          title: "another title",
-          shortDescription: "another shortDescription",
-          content: "another content",
+          title: 'another title',
+          shortDescription: 'another shortDescription',
+          content: 'another content',
         })
         .expect(HTTP_STATUSES.NO_CONTENT_204);
     });
@@ -202,7 +202,7 @@ describe("postsRouter", () => {
       const { createdEntity: anotherBlog } = await blogsTestManager.createBlog({
         inputData: {
           ...updateBlogData,
-          name: "next blog name",
+          name: 'next blog name',
         },
         expectedStatusCode: HTTP_STATUSES.CREATED_201,
         authorizationCredentials: validBasicAuthLoginPass,
@@ -210,7 +210,7 @@ describe("postsRouter", () => {
 
       await request(app)
         .put(RouterPaths.posts + `/${updatedPost.body.id}`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .send({
           ...updatedPost.body,
           blogId: anotherBlog!.id,
@@ -225,31 +225,29 @@ describe("postsRouter", () => {
     });
   });
 
-  describe("delete", () => {
-    it("should not delete post if unauthorized or unexisted", async () => {
+  describe('delete', () => {
+    it('should not delete post if unauthorized or unexisted', async () => {
       await request(app)
         .delete(RouterPaths.posts + `/${post.id}`)
         .expect(HTTP_STATUSES.UNAUTHORIZED_401);
 
       await request(app)
         .delete(RouterPaths.posts + `/unexisted_post_id`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
     });
 
-    it("should delete post", async () => {
+    it('should delete post', async () => {
       await request(app)
         .delete(RouterPaths.posts + `/${post.id}`)
-        .set("Authorization", validBasicAuthLoginPass)
+        .set('Authorization', validBasicAuthLoginPass)
         .expect(HTTP_STATUSES.NO_CONTENT_204);
 
       await request(app)
         .get(RouterPaths.posts + `/${post.id}`)
         .expect(HTTP_STATUSES.NOT_FOUND_404);
 
-      const result = await request(app)
-        .get(RouterPaths.posts)
-        .expect(HTTP_STATUSES.OK_200);
+      const result = await request(app).get(RouterPaths.posts).expect(HTTP_STATUSES.OK_200);
 
       expect(result.body.items).toEqual([]);
     });

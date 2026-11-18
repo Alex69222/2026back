@@ -1,31 +1,28 @@
 /// <reference types="jest" />
 
-import request, { Response } from "supertest";
-import { ICreatePostModel, IPostModel } from "../../src/types/post-model";
-import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
-import { ITestManagerCreateData } from "./types/manager.types";
-import { app, RouterPaths } from "../../src";
-import {
-  ICommentViewModel,
-  ICreateCommentModel,
-} from "../../src/types/comment-model";
+import request, { Response } from 'supertest';
+import { ICreatePostModel, PostModel } from '../../src/types/post-model';
+import { HTTP_STATUSES } from '../../src/utils/httpStatuses';
+import { ITestManagerCreateData } from './types/manager.types';
+import { app, RouterPaths } from '../../src';
+import { ICommentViewModel, ICreateCommentModel } from '../../src/types/comment-model';
 
 export const postsTestManager = {
   async createPost({
     inputData,
     expectedStatusCode = HTTP_STATUSES.CREATED_201,
-    authorizationCredentials = "",
+    authorizationCredentials = '',
   }: ITestManagerCreateData<ICreatePostModel>) {
     const response = await request(app)
       .post(RouterPaths.posts)
-      .set("Authorization", authorizationCredentials)
+      .set('Authorization', authorizationCredentials)
       .send(inputData);
     expect(response.status).toBe(expectedStatusCode);
 
     let createdEntity;
 
     if (expectedStatusCode === HTTP_STATUSES.CREATED_201) {
-      createdEntity = response.body as IPostModel;
+      createdEntity = response.body as PostModel;
 
       expect(response.body.title).toBe(inputData.title);
       expect(response.body.shortDescription).toBe(inputData.shortDescription);
@@ -43,7 +40,7 @@ export const postsTestManager = {
     {
       inputData,
       expectedStatusCode = HTTP_STATUSES.CREATED_201,
-      authorizationCredentials = "",
+      authorizationCredentials = '',
     }: ITestManagerCreateData<ICreateCommentModel>,
   ): Promise<{
     response: Response;
@@ -51,7 +48,7 @@ export const postsTestManager = {
   }> {
     const response = await request(app)
       .post(RouterPaths.posts + `/${postId}/comments`)
-      .set("Authorization", "Bearer " + authorizationCredentials)
+      .set('Authorization', 'Bearer ' + authorizationCredentials)
       .send(inputData);
 
     expect(response.status).toBe(expectedStatusCode);

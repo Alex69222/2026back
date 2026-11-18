@@ -1,24 +1,21 @@
-import { NextFunction, Request, Response } from "express";
-import { body, oneOf } from "express-validator";
-import { usersQueryRepository } from "../../repositories/users-query-repository";
-import { HTTP_STATUSES } from "../../utils/httpStatuses";
+import { NextFunction, Request, Response } from 'express';
+import { body, oneOf } from 'express-validator';
+import { usersQueryRepository } from '../../repositories/users-query-repository';
+import { HTTP_STATUSES } from '../../utils/httpStatuses';
 
-export const validateUserLoginMiddleware = body("login")
+export const validateUserLoginMiddleware = body('login')
   .isString()
   .trim()
   .isLength({ min: 3, max: 10 })
   .matches(/^[a-zA-Z0-9_-]*$/)
-  .withMessage("user login should be 3 to 10 letters or numbers");
+  .withMessage('user login should be 3 to 10 letters or numbers');
 
-export const validateUserPasswordMiddleware = body("password")
+export const validateUserPasswordMiddleware = body('password')
   .isString()
   .trim()
   .isLength({ min: 6, max: 20 });
 
-export const validateUserEmailMiddleware = body("email")
-  .isString()
-  .trim()
-  .isEmail();
+export const validateUserEmailMiddleware = body('email').isString().trim().isEmail();
 
 export const validateUserExistsMiddleware = async (
   req: Request,
@@ -34,20 +31,16 @@ export const validateUserExistsMiddleware = async (
 
 export const validateLoginOrEmailMiddleware = oneOf(
   [
-    body("loginOrEmail")
+    body('loginOrEmail')
       .isString()
       .trim()
       .isLength({ min: 3, max: 10 })
       .matches(/^[a-zA-Z0-9_-]*$/)
-      .withMessage("login должен быть 3-10 символов: буквы, цифры, _, -"),
+      .withMessage('login должен быть 3-10 символов: буквы, цифры, _, -'),
 
-    body("loginOrEmail")
-      .isString()
-      .trim()
-      .isEmail()
-      .withMessage("неверный email"),
+    body('loginOrEmail').isString().trim().isEmail().withMessage('неверный email'),
   ],
   {
-    message: "loginOrEmail должен быть валидным логином или email",
+    message: 'loginOrEmail должен быть валидным логином или email',
   },
 );

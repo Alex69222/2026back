@@ -1,5 +1,5 @@
-import { urlAccessCollection } from "./db";
-import { IURLAccessModel } from "../types/url-access-model";
+import { urlAccessCollection } from './db';
+import { IURLAccessModel } from '../types/url-access-model';
 
 export const urlAccessRepository = {
   async addAccessCase(accessData: IURLAccessModel): Promise<boolean> {

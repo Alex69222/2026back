@@ -1,5 +1,8 @@
-import { userActiveSessionsCollection } from "./db";
-import { IUserActiveSessionModel, IUserActiveSessionViewModel } from "../types/user-active-session-model";
+import { userActiveSessionsCollection } from './db';
+import {
+  IUserActiveSessionModel,
+  IUserActiveSessionViewModel,
+} from '../types/user-active-session-model';
 
 export const activeSessionsRepository = {
   async addActiveSession(sessionData: IUserActiveSessionModel): Promise<boolean> {
@@ -21,8 +24,8 @@ export const activeSessionsRepository = {
   async findAllUserSessions(userId: string): Promise<IUserActiveSessionViewModel[]> {
     const sessions = await userActiveSessionsCollection.find({ userId }).toArray();
     return sessions.map(({ ip, title, lastActiveDate, deviceId }) => ({
-      ip: ip ?? "",
-      title: title ?? "",
+      ip: ip ?? '',
+      title: title ?? '',
       lastActiveDate,
       deviceId,
     }));
@@ -44,13 +47,13 @@ export const activeSessionsRepository = {
   async deleteOneUserSession(
     userId: string,
     deviceId: string,
-  ): Promise<"deleted" | "notFound" | "forbidden"> {
+  ): Promise<'deleted' | 'notFound' | 'forbidden'> {
     const session = await userActiveSessionsCollection.findOne({ deviceId });
-    if (!session) return "notFound";
-    if (session.userId !== userId) return "forbidden";
+    if (!session) return 'notFound';
+    if (session.userId !== userId) return 'forbidden';
 
     const result = await userActiveSessionsCollection.deleteOne({ userId, deviceId });
-    return result.deletedCount === 1 ? "deleted" : "notFound";
+    return result.deletedCount === 1 ? 'deleted' : 'notFound';
   },
   async deleteRestUserSessions(userId: string, deviceId: string): Promise<boolean> {
     const result = await userActiveSessionsCollection.deleteMany({

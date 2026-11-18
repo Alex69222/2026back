@@ -1,9 +1,5 @@
-import { addDays } from "date-fns/addDays";
-import {
-  ICreateVideoInputModel,
-  IUpdateVideoInputModel,
-  IVideo,
-} from "../types/video-model";
+import { addDays } from 'date-fns/addDays';
+import { ICreateVideoInputModel, IUpdateVideoInputModel, IVideo } from '../types/video-model';
 
 const videos: Array<IVideo> = [];
 

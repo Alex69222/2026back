@@ -1,9 +1,8 @@
-import nodemailer from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
+import nodemailer from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 let transport = nodemailer.createTransport({
-
-  host: "smtp.yandex.ru",
+  host: 'smtp.yandex.ru',
   port: 465,
   secure: true,
   auth: {
@@ -13,11 +12,7 @@ let transport = nodemailer.createTransport({
 });
 
 export interface IEmailService {
-  sendEmail: (
-    to: string,
-    subject: string,
-    html: string,
-  ) => Promise<SMTPTransport.SentMessageInfo>;
+  sendEmail: (to: string, subject: string, html: string) => Promise<SMTPTransport.SentMessageInfo>;
   sendConfirmEmailForRegistration: (
     login: string,
     email: string,
@@ -28,7 +23,7 @@ export interface IEmailService {
 export const emailService = {
   async sendEmail(to: string, subject: string, html: string) {
     const info = await transport.sendMail({
-      from: "BLOGGERS <tartuga.amigo@yandex.ru>",
+      from: 'BLOGGERS <tartuga.amigo@yandex.ru>',
       to,
       subject,
       html,
@@ -36,12 +31,8 @@ export const emailService = {
 
     return info;
   },
-  async sendConfirmEmailForRegistration(
-    login: string,
-    email: string,
-    confirmationCode: string,
-  ) {
-    const SUBJECT = "Confirm your Email to complete registration.";
+  async sendConfirmEmailForRegistration(login: string, email: string, confirmationCode: string) {
+    const SUBJECT = 'Confirm your Email to complete registration.';
     const HTML = ` 
     <p>Hello, dear ${login}!</p>
     <p>Please, finish your registration by <a href="${confirmationCode}"> confirming your email</a>!</p>

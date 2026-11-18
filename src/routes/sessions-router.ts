@@ -1,12 +1,12 @@
-import { Router, Request, Response } from "express";
-import { jwtCookieMiddleware } from "../middlewares/auth-middlewares/jwt-cookie-middleware";
-import { activeSessionsRepository } from "../repositories/active-sessions-repository";
-import { HTTP_STATUSES } from "../utils/httpStatuses";
-import { jwtService } from "../application/jwt-service";
+import { Router, Request, Response } from 'express';
+import { jwtCookieMiddleware } from '../middlewares/auth-middlewares/jwt-cookie-middleware';
+import { activeSessionsRepository } from '../repositories/active-sessions-repository';
+import { HTTP_STATUSES } from '../utils/httpStatuses';
+import { jwtService } from '../application/jwt-service';
 
 export const sessionsRouter = Router();
 
-sessionsRouter.get("/", jwtCookieMiddleware, async (req: Request, res: Response) => {
+sessionsRouter.get('/', jwtCookieMiddleware, async (req: Request, res: Response) => {
   const sessionData = await jwtService.getSessionDataByToken(req.cookies.refreshToken);
   if (!sessionData) return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -14,7 +14,7 @@ sessionsRouter.get("/", jwtCookieMiddleware, async (req: Request, res: Response)
   return res.status(HTTP_STATUSES.OK_200).send(sessions);
 });
 
-sessionsRouter.delete("/", jwtCookieMiddleware, async (req: Request, res: Response) => {
+sessionsRouter.delete('/', jwtCookieMiddleware, async (req: Request, res: Response) => {
   const sessionData = await jwtService.getSessionDataByToken(req.cookies.refreshToken);
   if (!sessionData) return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -22,7 +22,7 @@ sessionsRouter.delete("/", jwtCookieMiddleware, async (req: Request, res: Respon
   return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
 });
 
-sessionsRouter.delete("/:deviceId", jwtCookieMiddleware, async (req: Request, res: Response) => {
+sessionsRouter.delete('/:deviceId', jwtCookieMiddleware, async (req: Request, res: Response) => {
   const sessionData = await jwtService.getSessionDataByToken(req.cookies.refreshToken);
   if (!sessionData) return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
 
@@ -30,11 +30,11 @@ sessionsRouter.delete("/:deviceId", jwtCookieMiddleware, async (req: Request, re
   const result = await activeSessionsRepository.deleteOneUserSession(sessionData.userId, deviceId);
 
   switch (result) {
-    case "notFound":
+    case 'notFound':
       return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-    case "forbidden":
+    case 'forbidden':
       return res.sendStatus(HTTP_STATUSES.FORBIDDEN_403);
-    case "deleted":
+    case 'deleted':
       return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
   }
 });

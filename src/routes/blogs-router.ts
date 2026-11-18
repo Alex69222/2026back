@@ -1,38 +1,38 @@
-import { Request, Response, Router } from "express";
+import { Request, Response, Router } from 'express';
 
-import { HTTP_STATUSES } from "../utils/httpStatuses";
-import { basicAuthMiddleware } from "../middlewares/auth-middlewares/basic-auth-middleware";
+import { HTTP_STATUSES } from '../utils/httpStatuses';
+import { basicAuthMiddleware } from '../middlewares/auth-middlewares/basic-auth-middleware';
 import {
   validateBlogDescriptionMiddleware,
   validateBlogExistsMiddleware,
   validateBlogNameMiddleware,
   validateBlogWebsiteUrlMiddleware,
-} from "../middlewares/blogs-middlewares";
-import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
-import { matchedData } from "express-validator";
-import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
-import { unexpectedErrorMsgJson } from "../utils/errors";
-import { blogsService } from "../domain/blogs-service";
-import { qpNormalizer } from "../utils/qpNormalizer";
+} from '../middlewares/blogs-middlewares';
+import { IBlogModel, ICreateBlogModel } from '../types/blog-model';
+import { matchedData } from 'express-validator';
+import { inputValidationMiddleware } from '../middlewares/input-validation-middleware';
+import { unexpectedErrorMsgJson } from '../utils/errors';
+import { blogsService } from '../domain/blogs-service';
+import { qpNormalizer } from '../utils/qpNormalizer';
 import {
   validatePostContentMiddleware,
   validatePostShortDescriptionMiddleware,
   validatePostTitleMiddleware,
-} from "../middlewares/posts-middleware";
-import { ICreatePostModel } from "../types/post-model";
-import { postsService } from "../domain/posts-service";
-import { blogsQueryRepository } from "../repositories/blogs-query-repositiry";
-import { postsQueryRepository } from "../repositories/posts-query-repository";
+} from '../middlewares/posts-middleware';
+import { ICreatePostModel } from '../types/post-model';
+import { postsService } from '../domain/posts-service';
+import { blogsQueryRepository } from '../repositories/blogs-query-repositiry';
+import { postsQueryRepository } from '../repositories/posts-query-repository';
 
 export const blogsRouter = Router();
 
-blogsRouter.get("/", async (req: Request, res: Response) => {
+blogsRouter.get('/', async (req: Request, res: Response) => {
   const normalizedQp = qpNormalizer(req.query);
   const blogs = await blogsQueryRepository.getBlogs(normalizedQp);
   res.send(blogs);
 });
 
-blogsRouter.get("/:id", async (req: Request, res: Response) => {
+blogsRouter.get('/:id', async (req: Request, res: Response) => {
   const paramId = req.params.id.toString();
   const blog = await blogsQueryRepository.getBlogById(paramId);
   if (!blog) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -40,7 +40,7 @@ blogsRouter.get("/:id", async (req: Request, res: Response) => {
 });
 
 blogsRouter.post(
-  "/",
+  '/',
   basicAuthMiddleware,
   validateBlogNameMiddleware,
   validateBlogDescriptionMiddleware,
@@ -55,20 +55,16 @@ blogsRouter.post(
   },
 );
 
-blogsRouter.get(
-  "/:id/posts",
-  validateBlogExistsMiddleware,
-  async (req: Request, res: Response) => {
-    const normalizedQp = qpNormalizer(req.query);
-    const posts = await postsQueryRepository.getPosts(normalizedQp, {
-      blogId: req.params.id.toString(),
-    });
-    res.send(posts);
-  },
-);
+blogsRouter.get('/:id/posts', validateBlogExistsMiddleware, async (req: Request, res: Response) => {
+  const normalizedQp = qpNormalizer(req.query);
+  const posts = await postsQueryRepository.getPosts(normalizedQp, {
+    blogId: req.params.id.toString(),
+  });
+  res.send(posts);
+});
 
 blogsRouter.post(
-  "/:id/posts",
+  '/:id/posts',
   basicAuthMiddleware,
   validatePostTitleMiddleware,
   validatePostShortDescriptionMiddleware,
@@ -82,17 +78,14 @@ blogsRouter.post(
       blogId: req.params.id.toString(),
     });
 
-    if (!post)
-      return res
-        .status(HTTP_STATUSES.BAD_REQUEST_400)
-        .json(unexpectedErrorMsgJson);
+    if (!post) return res.status(HTTP_STATUSES.BAD_REQUEST_400).json(unexpectedErrorMsgJson);
 
     res.status(HTTP_STATUSES.CREATED_201).send(post);
   },
 );
 
 blogsRouter.put(
-  "/:id",
+  '/:id',
   basicAuthMiddleware,
   validateBlogExistsMiddleware,
   validateBlogNameMiddleware,
@@ -113,7 +106,7 @@ blogsRouter.put(
 );
 
 blogsRouter.delete(
-  "/:id",
+  '/:id',
   basicAuthMiddleware,
   validateBlogExistsMiddleware,
   inputValidationMiddleware,
@@ -122,8 +115,6 @@ blogsRouter.delete(
 
     const deleted = await blogsService.deleteBlogById(paramId);
 
-    res.sendStatus(
-      deleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400,
-    );
+    res.sendStatus(deleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400);
   },
 );

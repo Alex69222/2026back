@@ -1,15 +1,12 @@
-import { ICommentViewModel } from "../types/comment-model";
-import { IPaginationModel } from "../types/pagination/pagination-model";
-import { paginateItems } from "../utils/paginateItems";
-import { INormalizedQparams } from "../utils/qpNormalizer";
-import { commentsCollection } from "./db";
+import { ICommentViewModel } from '../types/comment-model';
+import { IPaginationModel } from '../types/pagination/pagination-model';
+import { paginateItems } from '../utils/paginateItems';
+import { INormalizedQparams } from '../utils/qpNormalizer';
+import { commentsCollection } from './db';
 
 export const commentsQueryRepository = {
   async getCommentById(id: string): Promise<ICommentViewModel | null> {
-    const comment = await commentsCollection.findOne(
-      { id },
-      { projection: { _id: 0, postId: 0 } },
-    );
+    const comment = await commentsCollection.findOne({ id }, { projection: { _id: 0, postId: 0 } });
     return comment;
   },
   async getCommentsByPostId(

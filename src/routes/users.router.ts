@@ -1,23 +1,23 @@
-import { Request, Response, Router } from "express";
+import { Request, Response, Router } from 'express';
 import {
   validateUserEmailMiddleware,
   validateUserExistsMiddleware,
   validateUserLoginMiddleware,
   validateUserPasswordMiddleware,
-} from "../middlewares/users-middlewares";
-import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
-import { usersService } from "../domain/users-service";
-import { usersQueryRepository } from "../repositories/users-query-repository";
-import { HTTP_STATUSES } from "../utils/httpStatuses";
-import { IUserViewModel } from "../types/users-model";
-import { basicAuthMiddleware } from "../middlewares/auth-middlewares/basic-auth-middleware";
-import { IAPIErrorResult } from "../types/error/api-error";
-import { qpNormalizer } from "../utils/qpNormalizer";
+} from '../middlewares/users-middlewares';
+import { inputValidationMiddleware } from '../middlewares/input-validation-middleware';
+import { usersService } from '../domain/users-service';
+import { usersQueryRepository } from '../repositories/users-query-repository';
+import { HTTP_STATUSES } from '../utils/httpStatuses';
+import { IUserViewModel } from '../types/users-model';
+import { basicAuthMiddleware } from '../middlewares/auth-middlewares/basic-auth-middleware';
+import { IAPIErrorResult } from '../types/error/api-error';
+import { qpNormalizer } from '../utils/qpNormalizer';
 
 export const usersRouter = Router();
 
 usersRouter.post(
-  "/",
+  '/',
   basicAuthMiddleware,
   validateUserLoginMiddleware,
   validateUserPasswordMiddleware,
@@ -45,7 +45,7 @@ usersRouter.post(
 );
 
 usersRouter.get(
-  "/",
+  '/',
   basicAuthMiddleware,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
@@ -56,7 +56,7 @@ usersRouter.get(
 );
 
 usersRouter.delete(
-  "/:id",
+  '/:id',
   basicAuthMiddleware,
   validateUserExistsMiddleware,
   inputValidationMiddleware,
@@ -65,8 +65,6 @@ usersRouter.delete(
 
     const deleted = await usersService.deleteUserById(paramId);
 
-    res.sendStatus(
-      deleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400,
-    );
+    res.sendStatus(deleted ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400);
   },
 );

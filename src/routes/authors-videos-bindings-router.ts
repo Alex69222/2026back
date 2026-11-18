@@ -1,13 +1,13 @@
-import { Request, Response, Router } from "express";
-import { IAPIErrorResult } from "../types/error/api-error";
-import { HTTP_STATUSES } from "../utils/httpStatuses";
-import { dataBase } from "../repositories/memoryDB";
-import { IAuthorVideoBinging } from "../types/authors-videos-bindings-model";
-import { videosRepository } from "../repositories/videos-repository";
+import { Request, Response, Router } from 'express';
+import { IAPIErrorResult } from '../types/error/api-error';
+import { HTTP_STATUSES } from '../utils/httpStatuses';
+import { dataBase } from '../repositories/memoryDB';
+import { IAuthorVideoBinging } from '../types/authors-videos-bindings-model';
+import { videosRepository } from '../repositories/videos-repository';
 
 export const authorsVideosBindingsRouter = Router();
 
-authorsVideosBindingsRouter.post("/", async (req: Request, res: Response) => {
+authorsVideosBindingsRouter.post('/', async (req: Request, res: Response) => {
   const responseError: IAPIErrorResult = {
     errorsMessages: [],
   };
@@ -15,14 +15,14 @@ authorsVideosBindingsRouter.post("/", async (req: Request, res: Response) => {
   const authorId = +req.body.authorId;
   if (!videoId || Number.isNaN(videoId)) {
     responseError.errorsMessages?.push({
-      field: "videoId",
-      message: "Video id was not provided",
+      field: 'videoId',
+      message: 'Video id was not provided',
     });
   }
   if (!authorId || Number.isNaN(authorId)) {
     responseError.errorsMessages?.push({
-      field: "authorId",
-      message: "Author id was not provided",
+      field: 'authorId',
+      message: 'Author id was not provided',
     });
   }
   if (responseError.errorsMessages!.length) {
@@ -30,12 +30,12 @@ authorsVideosBindingsRouter.post("/", async (req: Request, res: Response) => {
   }
   const video = videosRepository.getVideoById(videoId);
   const author = dataBase.authors.find((a) => a.id === authorId);
-  let notFoundMessage: string = "";
+  let notFoundMessage: string = '';
   if (!video) {
-    notFoundMessage += "Video not found. ";
+    notFoundMessage += 'Video not found. ';
   }
   if (!author) {
-    notFoundMessage += "Author not found. ";
+    notFoundMessage += 'Author not found. ';
   }
   if (notFoundMessage.length) {
     return res.status(HTTP_STATUSES.NOT_FOUND_404).send(notFoundMessage);
@@ -44,9 +44,7 @@ authorsVideosBindingsRouter.post("/", async (req: Request, res: Response) => {
     (b) => b.authorId === author?.id && b.videoId === video?.id,
   );
   if (bindingExists) {
-    return res
-      .status(HTTP_STATUSES.BAD_REQUEST_400)
-      .json({ message: "Binding already exists" });
+    return res.status(HTTP_STATUSES.BAD_REQUEST_400).json({ message: 'Binding already exists' });
   }
   const createdBinding: IAuthorVideoBinging = {
     authorId,

@@ -1,14 +1,9 @@
-import { NextFunction, Request, Response } from "express";
-import { HTTP_STATUSES } from "../../utils/httpStatuses";
-import { jwtService } from "../../application/jwt-service";
-import { activeSessionsRepository } from "../../repositories/active-sessions-repository";
+import { NextFunction, Request, Response } from 'express';
+import { HTTP_STATUSES } from '../../utils/httpStatuses';
+import { jwtService } from '../../application/jwt-service';
+import { activeSessionsRepository } from '../../repositories/active-sessions-repository';
 
-export const jwtCookieMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-
+export const jwtCookieMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.cookies.refreshToken) {
     return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   }

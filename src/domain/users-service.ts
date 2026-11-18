@@ -1,11 +1,11 @@
-import { emailService, IEmailService } from "./../application/email-service";
-import { usersQueryRepository } from "../repositories/users-query-repository";
-import { usersRepository } from "../repositories/users-repository";
-import { IAPIErrorResult } from "../types/error/api-error";
-import { ICreateUserModel, IUserDBModel } from "../types/users-model";
-import { v4 as uuidv4 } from "uuid";
-import bcrypt from "bcrypt";
-import { add } from "date-fns/add";
+import { emailService, IEmailService } from './../application/email-service';
+import { usersQueryRepository } from '../repositories/users-query-repository';
+import { usersRepository } from '../repositories/users-repository';
+import { IAPIErrorResult } from '../types/error/api-error';
+import { ICreateUserModel, UserDBModel } from '../types/users-model';
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcrypt';
+import { add } from 'date-fns/add';
 // export const usersService = {
 export class usersServiceClass {
   constructor(protected emailService: IEmailService) {}
@@ -15,50 +15,44 @@ export class usersServiceClass {
       isConfirmed: boolean;
     },
   ): Promise<[true, string] | [false, IAPIErrorResult]> {
-    const userIsUniqueData = await this._validateUserIsUnique(
-      userData.login,
-      userData.email,
-    );
+    const userIsUniqueData = await this._validateUserIsUnique(userData.login, userData.email);
     if (!userIsUniqueData[0]) {
       return userIsUniqueData;
     }
     const passwordSalt = await bcrypt.genSalt(10);
-    const passwordHash = await this._generateHash(
-      userData.password,
-      passwordSalt,
-    );
+    const passwordHash = await this._generateHash(userData.password, passwordSalt);
 
     const isConfirmed = options.isConfirmed;
-    const emailConfirmation: IUserDBModel["emailConfirmation"] = {
-      isConfirmed,
-      confirmationCode: uuidv4(),
-      expirationDate: add(new Date(), {
-        hours: 1,
-        minutes: 1,
-      }),
-    };
 
-    const user: IUserDBModel = {
-      ...userData,
-      id: "",
-      passwordSalt,
+    const user = new UserDBModel(
+      '',
+      userData.login,
+      userData.email,
+      new Date().toISOString(),
       passwordHash,
-      createdAt: new Date().toISOString(),
-      emailConfirmation,
-    };
-    const userId = await usersRepository.createUser(user);
+      passwordSalt,
+      {
+        isConfirmed,
+        confirmationCode: uuidv4(),
+        expirationDate: add(new Date(), {
+          hours: 1,
+          minutes: 1,
+        }),
+      },
+    );
 
+    const userId = await usersRepository.createUser(user);
 
     if (!isConfirmed) {
       try {
         await this.emailService.sendConfirmEmailForRegistration(
           user.login,
           user.email,
-          emailConfirmation.confirmationCode,
+          user.emailConfirmation.confirmationCode,
         );
         return [true, userId];
       } catch (e) {
-        console.log(e)
+        console.log(e);
         await usersRepository.deleteUserById(userId);
         return [
           false,
@@ -67,7 +61,7 @@ export class usersServiceClass {
               {
                 field: null,
                 message:
-                  "something went wrong when trying to send confirmation email. Please, try to register again later",
+                  'something went wrong when trying to send confirmation email. Please, try to register again later',
               },
             ],
           },
@@ -82,15 +76,12 @@ export class usersServiceClass {
     const deleted = await usersRepository.deleteUserById(id);
     return deleted;
   }
-  async getUserById(id: string): Promise<IUserDBModel | null> {
+  async getUserById(id: string): Promise<UserDBModel | null> {
     const user = await usersRepository.getUserById(id);
 
     return user;
   }
-  async checkCredentials(
-    loginOrEmail: string,
-    password: string,
-  ): Promise<false | IUserDBModel> {
+  async checkCredentials(loginOrEmail: string, password: string): Promise<false | UserDBModel> {
     const user = await usersRepository.findUserByLoginOrEmail(loginOrEmail);
     if (!user) return false;
     if (!user.emailConfirmation.isConfirmed) return false;
@@ -115,9 +106,7 @@ export class usersServiceClass {
       return [
         false,
         {
-          errorsMessages: [
-            { field: "login", message: "login should be unique" },
-          ],
+          errorsMessages: [{ field: 'login', message: 'login should be unique' }],
         },
       ];
     }
@@ -128,9 +117,7 @@ export class usersServiceClass {
       return [
         false,
         {
-          errorsMessages: [
-            { field: "email", message: "email should be unique" },
-          ],
+          errorsMessages: [{ field: 'email', message: 'email should be unique' }],
         },
       ];
     }
@@ -142,9 +129,7 @@ export class usersServiceClass {
       return [
         false,
         {
-          errorsMessages: [
-            { field: null, message: "Code doesn't exist" },
-          ],
+          errorsMessages: [{ field: null, message: "Code doesn't exist" }],
         },
       ];
     }
@@ -152,9 +137,7 @@ export class usersServiceClass {
       return [
         false,
         {
-          errorsMessages: [
-            { field: null, message: "Email is alredy confirmed" },
-          ],
+          errorsMessages: [{ field: null, message: 'Email is alredy confirmed' }],
         },
       ];
     }
@@ -162,9 +145,7 @@ export class usersServiceClass {
       return [
         false,
         {
-          errorsMessages: [
-            { field: null, message: "Confirmation code is expired" },
-          ],
+          errorsMessages: [{ field: null, message: 'Confirmation code is expired' }],
         },
       ];
     }
@@ -177,24 +158,19 @@ export class usersServiceClass {
             errorsMessages: [
               {
                 field: null,
-                message:
-                  "Confirmation failed. Something went wron. Try again later",
+                message: 'Confirmation failed. Something went wron. Try again later',
               },
             ],
           },
         ];
   }
-  async resendConfirmationEmail(
-    email: string,
-  ): Promise<[true] | [false, IAPIErrorResult]> {
+  async resendConfirmationEmail(email: string): Promise<[true] | [false, IAPIErrorResult]> {
     const user = await usersRepository.findUserByLoginOrEmail(email);
     if (!user)
       return [
         false,
         {
-          errorsMessages: [
-            { field: "email", message: "User with this email doesn't exist" },
-          ],
+          errorsMessages: [{ field: 'email', message: "User with this email doesn't exist" }],
         },
       ];
     // if (!user.emailConfirmation.isConfirmed)
@@ -209,11 +185,7 @@ export class usersServiceClass {
     const code = uuidv4();
 
     try {
-      await emailService.sendConfirmEmailForRegistration(
-        user.login,
-        user.email,
-        code,
-      );
+      await emailService.sendConfirmEmailForRegistration(user.login, user.email, code);
       await usersRepository.updateConfirmationCode(user.id, code);
       return [true];
     } catch (e) {
@@ -224,7 +196,7 @@ export class usersServiceClass {
             {
               field: null,
               message:
-                "something went wrong when trying to send confirmation email. Please, try to register again later",
+                'something went wrong when trying to send confirmation email. Please, try to register again later',
             },
           ],
         },

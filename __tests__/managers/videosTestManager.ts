@@ -1,17 +1,15 @@
-import { app, RouterPaths } from "../../src";
-import request from "supertest";
-import { HTTP_STATUSES, HttpStatusType } from "../../src/utils/httpStatuses";
-import { ICreateVideoInputModel, IVideo } from "../../src/types/video-model";
-import { ITestManagerCreateData } from "./types/manager.types";
+import { app, RouterPaths } from '../../src';
+import request from 'supertest';
+import { HTTP_STATUSES, HttpStatusType } from '../../src/utils/httpStatuses';
+import { ICreateVideoInputModel, IVideo } from '../../src/types/video-model';
+import { ITestManagerCreateData } from './types/manager.types';
 
 export const videosTestManager = {
   async createVideo({
     inputData,
     expectedStatusCode = HTTP_STATUSES.CREATED_201,
   }: ITestManagerCreateData<ICreateVideoInputModel>) {
-    const response = await request(app)
-      .post(RouterPaths.videos)
-      .send(inputData);
+    const response = await request(app).post(RouterPaths.videos).send(inputData);
     expect(response.status).toBe(expectedStatusCode);
 
     let createdEntity;

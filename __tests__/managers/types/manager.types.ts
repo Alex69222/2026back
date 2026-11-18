@@ -1,4 +1,4 @@
-import { HttpStatusType } from "../../../src/utils/httpStatuses";
+import { HttpStatusType } from '../../../src/utils/httpStatuses';
 
 export interface ITestManagerCreateData<T> {
   inputData: T;

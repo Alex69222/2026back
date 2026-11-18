@@ -1,21 +1,18 @@
 /// <reference types="jest" />
 
-import { HTTP_STATUSES } from "./../../src/utils/httpStatuses";
-import request from "supertest";
-import { app, RouterPaths } from "../../src/index";
-import { authorsVideosBindingTestManager } from "../managers/authorsVideosBindingsTestManager";
+import { HTTP_STATUSES } from './../../src/utils/httpStatuses';
+import request from 'supertest';
+import { app, RouterPaths } from '../../src/index';
+import { authorsVideosBindingTestManager } from '../managers/authorsVideosBindingsTestManager';
 
-import { videosTestManager } from "../managers/videosTestManager";
-import { authorsTestManager } from "../managers/authorsTestManager";
-import { ICreateAuthorVideoBindingModel } from "../../src/types/authors-videos-bindings-model";
-import {
-  ICreateVideoInputModel,
-  VideoResulutionsEnum,
-} from "../../src/types/video-model";
-import { ICreateAuthorInputModel } from "../../src/types/author-model";
-import { validBasicAuthLoginPass } from "../../src/middlewares/auth-middlewares/basic-auth-middleware";
+import { videosTestManager } from '../managers/videosTestManager';
+import { authorsTestManager } from '../managers/authorsTestManager';
+import { ICreateAuthorVideoBindingModel } from '../../src/types/authors-videos-bindings-model';
+import { ICreateVideoInputModel, VideoResulutionsEnum } from '../../src/types/video-model';
+import { ICreateAuthorInputModel } from '../../src/types/author-model';
+import { validBasicAuthLoginPass } from '../../src/middlewares/auth-middlewares/basic-auth-middleware';
 
-describe("/authors-videos-bingings-router", () => {
+describe('/authors-videos-bingings-router', () => {
   beforeAll(async () => {
     await request(app).delete(RouterPaths.test_delete);
   });
@@ -32,32 +29,28 @@ describe("/authors-videos-bingings-router", () => {
       authorId: 1,
       videoId: 1,
     };
-    await authorsVideosBindingTestManager.createBinding(
-      data,
-      HTTP_STATUSES.NOT_FOUND_404,
-    );
+    await authorsVideosBindingTestManager.createBinding(data, HTTP_STATUSES.NOT_FOUND_404);
   });
 
-  it("should create binding", async () => {
+  it('should create binding', async () => {
     const videoInputData: ICreateVideoInputModel = {
-      title: "test Video",
-      author: "author unknown",
+      title: 'test Video',
+      author: 'author unknown',
       availableResolutions: [VideoResulutionsEnum.P1080],
     };
 
     const authorInputData: ICreateAuthorInputModel = {
-      name: "Alex",
+      name: 'Alex',
     };
 
-    const { createdEntity: createdVideo } = await videosTestManager.createVideo(
-      { inputData: videoInputData },
+    const { createdEntity: createdVideo } = await videosTestManager.createVideo({
+      inputData: videoInputData,
+    });
+    const { createdEntity: createdAuthor } = await authorsTestManager.createAuthor(
+      authorInputData,
+      undefined,
+      validBasicAuthLoginPass,
     );
-    const { createdEntity: createdAuthor } =
-      await authorsTestManager.createAuthor(
-        authorInputData,
-        undefined,
-        validBasicAuthLoginPass,
-      );
 
     await authorsVideosBindingTestManager.createBinding({
       authorId: createdAuthor!.id,

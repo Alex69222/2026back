@@ -1,8 +1,8 @@
-import { Router, Request, Response } from "express";
-import { HTTP_STATUSES } from "../utils/httpStatuses";
-import { videosRepository } from "../repositories/videos-repository";
-import { matchedData } from "express-validator";
-import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
+import { Router, Request, Response } from 'express';
+import { HTTP_STATUSES } from '../utils/httpStatuses';
+import { videosRepository } from '../repositories/videos-repository';
+import { matchedData } from 'express-validator';
+import { inputValidationMiddleware } from '../middlewares/input-validation-middleware';
 import {
   validateVideoAuthorMiddleware,
   validateVideoCanBeDownloadedMiddleware,
@@ -10,19 +10,16 @@ import {
   validateVideoPublicationDateMiddleware,
   validateVideoResolutionsMiddleware,
   validateVideoTitleMiddleware,
-} from "../middlewares/video-model-middlewares";
-import {
-  ICreateVideoInputModel,
-  IUpdateVideoInputModel,
-} from "../types/video-model";
+} from '../middlewares/video-model-middlewares';
+import { ICreateVideoInputModel, IUpdateVideoInputModel } from '../types/video-model';
 
 export const videosRouter = Router();
 
-videosRouter.get("/", (req: Request, res: Response) => {
+videosRouter.get('/', (req: Request, res: Response) => {
   res.send(videosRepository.getVideos());
 });
 
-videosRouter.get("/:id", (req: Request, res: Response) => {
+videosRouter.get('/:id', (req: Request, res: Response) => {
   const paramId = +req.params.id;
   const video = videosRepository.getVideoById(paramId);
   if (!video) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -30,7 +27,7 @@ videosRouter.get("/:id", (req: Request, res: Response) => {
 });
 
 videosRouter.post(
-  "/",
+  '/',
   validateVideoTitleMiddleware,
   validateVideoAuthorMiddleware,
   validateVideoResolutionsMiddleware,
@@ -48,7 +45,7 @@ videosRouter.post(
 );
 
 videosRouter.put(
-  "/:id",
+  '/:id',
   validateVideoTitleMiddleware,
   validateVideoAuthorMiddleware,
   validateVideoResolutionsMiddleware,
@@ -72,21 +69,15 @@ videosRouter.put(
       publicationDate: data.publicationDate,
     });
 
-    res.sendStatus(
-      videoUpdated ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.NOT_FOUND_404,
-    );
+    res.sendStatus(videoUpdated ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.NOT_FOUND_404);
   },
 );
 
-videosRouter.delete("/:id", (req: Request, res: Response) => {
+videosRouter.delete('/:id', (req: Request, res: Response) => {
   const paramId = +req.params.id;
 
   const video = videosRepository.getVideoById(paramId);
   if (!video) return res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
   const deleteSuccessfully = videosRepository.deleteVideoBy(paramId);
-  res.sendStatus(
-    deleteSuccessfully
-      ? HTTP_STATUSES.NO_CONTENT_204
-      : HTTP_STATUSES.BAD_REQUEST_400,
-  );
+  res.sendStatus(deleteSuccessfully ? HTTP_STATUSES.NO_CONTENT_204 : HTTP_STATUSES.BAD_REQUEST_400);
 });

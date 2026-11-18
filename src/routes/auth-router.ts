@@ -1,62 +1,55 @@
-import { Request, Response, Router } from "express";
+import { Request, Response, Router } from 'express';
 import {
   validateLoginOrEmailMiddleware,
   validateUserEmailMiddleware,
   validateUserLoginMiddleware,
   validateUserPasswordMiddleware,
-} from "../middlewares/users-middlewares";
-import { inputValidationMiddleware } from "../middlewares/input-validation-middleware";
-import { usersService } from "../domain/users-service";
-import { HTTP_STATUSES } from "../utils/httpStatuses";
-import { jwtService } from "../application/jwt-service";
-import { jwtAuthMiddleware } from "../middlewares/auth-middlewares/jwt-auth-middleware";
-import { IMeModel } from "../types/users-model";
-import { jwtCookieMiddleware } from "../middlewares/auth-middlewares/jwt-cookie-middleware";
-import { activeSessionsRepository } from "../repositories/active-sessions-repository";
-import { apiRestrictionsMiddleware } from "../middlewares/api-restrictions-middleware";
+} from '../middlewares/users-middlewares';
+import { inputValidationMiddleware } from '../middlewares/input-validation-middleware';
+import { usersService } from '../domain/users-service';
+import { HTTP_STATUSES } from '../utils/httpStatuses';
+import { jwtService } from '../application/jwt-service';
+import { jwtAuthMiddleware } from '../middlewares/auth-middlewares/jwt-auth-middleware';
+import { IMeModel } from '../types/users-model';
+import { jwtCookieMiddleware } from '../middlewares/auth-middlewares/jwt-cookie-middleware';
+import { activeSessionsRepository } from '../repositories/active-sessions-repository';
+import { apiRestrictionsMiddleware } from '../middlewares/api-restrictions-middleware';
 
 export const authRouter = Router();
 
 authRouter.post(
-  "/login",
+  '/login',
   apiRestrictionsMiddleware,
   validateLoginOrEmailMiddleware,
   validateUserPasswordMiddleware,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
-    const user = await usersService.checkCredentials(
-      req.body.loginOrEmail,
-      req.body.password,
-    );
+    const user = await usersService.checkCredentials(req.body.loginOrEmail, req.body.password);
 
     if (!user) {
       return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
     } else {
       const ip = req.ip;
-      const userAgent = req.get("User-Agent");
+      const userAgent = req.get('User-Agent');
       const token = await jwtService.createJWT(user);
       const refreshToken = await jwtService.createRefreshToken({ user, ip, title: userAgent });
-      res.cookie('refreshToken', refreshToken, {httpOnly: true,secure: true})
+      res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
       res.status(HTTP_STATUSES.OK_200).send({ accessToken: token });
     }
   },
 );
 
-authRouter.get(
-  "/me",
-  jwtAuthMiddleware,
-  async (req: Request, res: Response) => {
-    const me: IMeModel = {
-      login: req.user!.login,
-      email: req.user!.email,
-      userId: req.user!.id,
-    };
-    res.status(HTTP_STATUSES.OK_200).send(me);
-  },
-);
+authRouter.get('/me', jwtAuthMiddleware, async (req: Request, res: Response) => {
+  const me: IMeModel = {
+    login: req.user!.login,
+    email: req.user!.email,
+    userId: req.user!.id,
+  };
+  res.status(HTTP_STATUSES.OK_200).send(me);
+});
 
 authRouter.post(
-  "/registration",
+  '/registration',
   apiRestrictionsMiddleware,
   validateUserLoginMiddleware,
   validateUserPasswordMiddleware,
@@ -80,7 +73,7 @@ authRouter.post(
 );
 
 authRouter.post(
-  "/registration-confirmation",
+  '/registration-confirmation',
   apiRestrictionsMiddleware,
   async (req: Request, res: Response) => {
     const confirmedData = await usersService.confirmEmail(req.body.code);
@@ -92,43 +85,41 @@ authRouter.post(
 );
 
 authRouter.post(
-  "/registration-email-resending",
+  '/registration-email-resending',
   apiRestrictionsMiddleware,
   validateUserEmailMiddleware,
   inputValidationMiddleware,
   async (req: Request, res: Response) => {
-    const resentData = await usersService.resendConfirmationEmail(
-      req.body.email,
-    );
+    const resentData = await usersService.resendConfirmationEmail(req.body.email);
     if (!resentData[0]) {
-      console.log(resentData[1])
+      console.log(resentData[1]);
       return res.status(HTTP_STATUSES.BAD_REQUEST_400).send(resentData[1]);
     }
     return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-  }
+  },
 );
 
-authRouter.post("/refresh-token", jwtCookieMiddleware, async(req: Request, res: Response) => {
+authRouter.post('/refresh-token', jwtCookieMiddleware, async (req: Request, res: Response) => {
   const token = req.cookies.refreshToken;
   const sessionData = await jwtService.getSessionDataByToken(token);
 
-  if(!sessionData) return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
+  if (!sessionData) return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
   const user = await usersService.getUserById(sessionData.userId);
 
   const accessToken = await jwtService.createJWT(user!);
-      const refreshToken = await jwtService.createRefreshToken({
-        user: user!,
-        deviceId: sessionData.deviceId,
-      });
-      res.cookie('refreshToken', refreshToken, {httpOnly: true,secure: true})
-      res.status(HTTP_STATUSES.OK_200).send({ accessToken });
-})
+  const refreshToken = await jwtService.createRefreshToken({
+    user: user!,
+    deviceId: sessionData.deviceId,
+  });
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+  res.status(HTTP_STATUSES.OK_200).send({ accessToken });
+});
 
-authRouter.post("/logout", jwtCookieMiddleware, async(req: Request, res: Response) => {
+authRouter.post('/logout', jwtCookieMiddleware, async (req: Request, res: Response) => {
   const token = req.cookies.refreshToken;
   const sessionData = await jwtService.getSessionDataByToken(token);
   if (!sessionData) return res.sendStatus(HTTP_STATUSES.UNAUTHORIZED_401);
 
   await activeSessionsRepository.deleteOneUserSession(sessionData.userId, sessionData.deviceId);
   return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
-})
+});

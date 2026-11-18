@@ -1,23 +1,23 @@
 /// <reference types="jest" />
 
-import request, { Response } from "supertest";
-import { IBlogModel, ICreateBlogModel } from "../../src/types/blog-model";
-import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
-import { app, RouterPaths } from "../../src";
-import { ITestManagerCreateData } from "./types/manager.types";
+import request, { Response } from 'supertest';
+import { IBlogModel, ICreateBlogModel } from '../../src/types/blog-model';
+import { HTTP_STATUSES } from '../../src/utils/httpStatuses';
+import { app, RouterPaths } from '../../src';
+import { ITestManagerCreateData } from './types/manager.types';
 
 export const blogsTestManager = {
   async createBlog({
     inputData,
     expectedStatusCode = HTTP_STATUSES.CREATED_201,
-    authorizationCredentials = "",
+    authorizationCredentials = '',
   }: ITestManagerCreateData<ICreateBlogModel>): Promise<{
     response: Response;
     createdEntity: IBlogModel | undefined;
   }> {
     const response = await request(app)
       .post(RouterPaths.blogs)
-      .set("Authorization", authorizationCredentials)
+      .set('Authorization', authorizationCredentials)
       .send(inputData);
 
     expect(response.status).toBe(expectedStatusCode);

@@ -1,5 +1,5 @@
-import { IAuthor } from "../types/author-model";
-import { IAuthorVideoBinging } from "../types/authors-videos-bindings-model";
+import { IAuthor } from '../types/author-model';
+import { IAuthorVideoBinging } from '../types/authors-videos-bindings-model';
 
 export interface IDB {
   authors: Array<IAuthor>;

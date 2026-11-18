@@ -1,11 +1,9 @@
-import { usersCollection } from "./db";
-import { IUserDBModel } from "../types/users-model";
-import { ObjectId } from "mongodb";
+import { usersCollection } from './db';
+import { UserDBModel } from '../types/users-model';
+import { ObjectId } from 'mongodb';
 
 export const usersRepository = {
-  async findUserByLoginOrEmail(
-    loginOrEmail: string,
-  ): Promise<IUserDBModel | null> {
+  async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDBModel | null> {
     const user = await usersCollection.findOne(
       {
         $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
@@ -17,16 +15,14 @@ export const usersRepository = {
     if (!user) return null;
     return user;
   },
-  async findUserByFilter(
-    filter: Record<string, any>,
-  ): Promise<IUserDBModel | null> {
+  async findUserByFilter(filter: Record<string, any>): Promise<UserDBModel | null> {
     const user = await usersCollection.findOne(filter, {
       projection: { _id: 0 },
     });
     if (!user) return null;
     return user;
   },
-  async createUser(userData: IUserDBModel) {
+  async createUser(userData: UserDBModel) {
     const user = {
       ...userData,
       id: new ObjectId().toString(),
@@ -36,7 +32,7 @@ export const usersRepository = {
     return user.id;
   },
 
-  async getUserById(id: string): Promise<IUserDBModel | null> {
+  async getUserById(id: string): Promise<UserDBModel | null> {
     const user = await usersCollection.findOne({ id });
     return user;
   },
@@ -50,10 +46,10 @@ export const usersRepository = {
     const result = await usersCollection.deleteMany({});
     return result.acknowledged;
   },
-  async findUserByConfirmationCode(code: string): Promise<IUserDBModel | null> {
+  async findUserByConfirmationCode(code: string): Promise<UserDBModel | null> {
     const user = await usersCollection.findOne(
       {
-        "emailConfirmation.confirmationCode": code,
+        'emailConfirmation.confirmationCode': code,
       },
       {
         projection: { _id: 0 },
@@ -67,7 +63,7 @@ export const usersRepository = {
       { id },
       {
         $set: {
-          "emailConfirmation.isConfirmed": true,
+          'emailConfirmation.isConfirmed': true,
         },
       },
     );
@@ -79,7 +75,7 @@ export const usersRepository = {
       { id },
       {
         $set: {
-          "emailConfirmation.confirmationCode": code,
+          'emailConfirmation.confirmationCode': code,
         },
       },
     );

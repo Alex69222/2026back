@@ -1,19 +1,24 @@
-import { IUserDBModel } from "../types/users-model";
-import { IUserActiveSessionModel } from "../types/user-active-session-model";
-import { activeSessionsRepository } from "../repositories/active-sessions-repository";
-import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
-const jwtSecret = process.env.JWT_SECRET || "secrect";
+import { UserDBModel } from '../types/users-model';
+import { IUserActiveSessionModel } from '../types/user-active-session-model';
+import { activeSessionsRepository } from '../repositories/active-sessions-repository';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+const jwtSecret = process.env.JWT_SECRET || 'secrect';
 
 export const jwtService = {
-  async createJWT(user: IUserDBModel) {
+  async createJWT(user: UserDBModel) {
     const token = jwt.sign({ userId: user.id }, jwtSecret, {
-      expiresIn: "10s",
+      expiresIn: '10s',
     });
     return token;
   },
-  async createRefreshToken({ user, deviceId, ip, title }: {
-    user: IUserDBModel;
+  async createRefreshToken({
+    user,
+    deviceId,
+    ip,
+    title,
+  }: {
+    user: UserDBModel;
     deviceId?: string;
     ip?: string;
     title?: string;
@@ -21,7 +26,7 @@ export const jwtService = {
     const isNewSession = !deviceId;
     deviceId ||= uuidv4();
     const token = jwt.sign({ userId: user.id, deviceId }, jwtSecret, {
-      expiresIn: "20s",
+      expiresIn: '20s',
     });
     const { iat, exp } = jwt.decode(token) as { iat: number; exp: number };
     const sessionData: IUserActiveSessionModel = {
@@ -46,10 +51,10 @@ export const jwtService = {
     try {
       const result = jwt.verify(token, jwtSecret);
       if (
-        typeof result === "string" ||
-        typeof result.userId !== "string" ||
-        typeof result.deviceId !== "string" ||
-        typeof result.iat !== "number"
+        typeof result === 'string' ||
+        typeof result.userId !== 'string' ||
+        typeof result.deviceId !== 'string' ||
+        typeof result.iat !== 'number'
       ) {
         return null;
       }

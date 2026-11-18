@@ -1,40 +1,40 @@
-import "dotenv/config";
-import express, { Request, Response } from "express";
-import { productsRouter } from "./routes/products-router";
-import { videosRouter } from "./routes/videos-router";
-import { dataBase } from "./repositories/memoryDB";
-import { authorsRouter } from "./routes/authors-router";
-import { authorsVideosBindingsRouter } from "./routes/authors-videos-bindings-router";
-import { videosRepository } from "./repositories/videos-repository";
-import { blogsRepository } from "./repositories/blogs-repository";
-import { postsRepository } from "./repositories/posts-repository";
-import { blogsRouter } from "./routes/blogs-router";
-import { postsRouter } from "./routes/posts-router";
-import { runDB } from "./repositories/db";
-import { usersRouter } from "./routes/users.router";
-import { usersRepository } from "./repositories/users-repository";
-import { authRouter } from "./routes/auth-router";
-import { commentsRepository } from "./repositories/comments-repository";
-import { commentsRouter } from "./routes/comments-router";
-import cookieParser from "cookie-parser";
-import { activeSessionsRepository } from "./repositories/active-sessions-repository";
-import { sessionsRouter } from "./routes/sessions-router";
-import { urlAccessRepository } from "./repositories/url-access-repository";
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
-const baseUrl = "/api";
+import 'dotenv/config';
+import express, { Request, Response } from 'express';
+import { productsRouter } from './routes/products-router';
+import { videosRouter } from './routes/videos-router';
+import { dataBase } from './repositories/memoryDB';
+import { authorsRouter } from './routes/authors-router';
+import { authorsVideosBindingsRouter } from './routes/authors-videos-bindings-router';
+import { videosRepository } from './repositories/videos-repository';
+import { blogsRepository } from './repositories/blogs-repository';
+import { postsRepository } from './repositories/posts-repository';
+import { blogsRouter } from './routes/blogs-router';
+import { postsRouter } from './routes/posts-router';
+import { runDB } from './repositories/db';
+import { usersRouter } from './routes/users.router';
+import { usersRepository } from './repositories/users-repository';
+import { authRouter } from './routes/auth-router';
+import { commentsRepository } from './repositories/comments-repository';
+import { commentsRouter } from './routes/comments-router';
+import cookieParser from 'cookie-parser';
+import { activeSessionsRepository } from './repositories/active-sessions-repository';
+import { sessionsRouter } from './routes/sessions-router';
+import { urlAccessRepository } from './repositories/url-access-repository';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
+const baseUrl = '/api';
 
 export const RouterPaths = {
-  blogs: baseUrl + "/blogs",
-  posts: baseUrl + "/posts",
-  comments: baseUrl + "/comments",
-  products: baseUrl + "/products",
-  videos: baseUrl + "/videos",
-  authors: baseUrl + "/authors",
-  authorsVideosBingings: "/authors-videos-bindings",
-  users: baseUrl + "/users",
-  auth: baseUrl + "/auth",
-  sessions: baseUrl + "/security/devices",
-  test_delete: baseUrl + "/testing/all-data",
+  blogs: baseUrl + '/blogs',
+  posts: baseUrl + '/posts',
+  comments: baseUrl + '/comments',
+  products: baseUrl + '/products',
+  videos: baseUrl + '/videos',
+  authors: baseUrl + '/authors',
+  authorsVideosBingings: '/authors-videos-bindings',
+  users: baseUrl + '/users',
+  auth: baseUrl + '/auth',
+  sessions: baseUrl + '/security/devices',
+  test_delete: baseUrl + '/testing/all-data',
 };
 
 const port = process.env.PORT || 3000;
@@ -42,7 +42,6 @@ export const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.set('trust proxy', true);
-
 
 app.use(RouterPaths.blogs, blogsRouter);
 app.use(RouterPaths.posts, postsRouter);
@@ -57,8 +56,8 @@ app.use(RouterPaths.authors, authorsRouter);
 
 app.use(RouterPaths.authorsVideosBingings, authorsVideosBindingsRouter);
 
-app.get("/", (req: Request, res: Response) => {
-  const message = "Hello World!!!";
+app.get('/', (req: Request, res: Response) => {
+  const message = 'Hello World!!!';
   res.send(message);
 });
 
@@ -82,7 +81,7 @@ export const startApp = async () => {
     console.log(`Example app listening on port ${port}`);
   });
 };
-if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== 'test') {
   startApp();
 }
 

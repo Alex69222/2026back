@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "jest",
     "watch": "tsc -w",
     "dev": "nodemon --inspect dist/index.js",

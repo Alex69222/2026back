@@ -1,4 +1,4 @@
-import { IPaginationModel } from "../types/pagination/pagination-model";
+import { IPaginationModel } from '../types/pagination/pagination-model';
 
 export const paginateItems = <T>({
   items,

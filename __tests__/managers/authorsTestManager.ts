@@ -1,19 +1,19 @@
 /// <reference types="jest" />
-import { app, RouterPaths } from "../../src";
+import { app, RouterPaths } from '../../src';
 
-import request from "supertest";
-import { HTTP_STATUSES, HttpStatusType } from "../../src/utils/httpStatuses";
-import { IAuthor, ICreateAuthorInputModel } from "../../src/types/author-model";
+import request from 'supertest';
+import { HTTP_STATUSES, HttpStatusType } from '../../src/utils/httpStatuses';
+import { IAuthor, ICreateAuthorInputModel } from '../../src/types/author-model';
 
 export const authorsTestManager = {
   async createAuthor(
     inputData: ICreateAuthorInputModel,
     expectedStatusCode: HttpStatusType = HTTP_STATUSES.CREATED_201,
-    authorizationCredentials: string = "",
+    authorizationCredentials: string = '',
   ) {
     const response = await request(app)
       .post(RouterPaths.authors)
-      .set("Authorization", authorizationCredentials)
+      .set('Authorization', authorizationCredentials)
       .send(inputData);
     expect(response.status).toBe(expectedStatusCode);
 

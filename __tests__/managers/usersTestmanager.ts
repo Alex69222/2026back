@@ -1,20 +1,20 @@
 /// <reference types="jest" />
 
-import request from "supertest";
-import { ICreateUserModel, IUserViewModel } from "../../src/types/users-model";
-import { HTTP_STATUSES } from "../../src/utils/httpStatuses";
-import { ITestManagerCreateData } from "./types/manager.types";
-import app, { RouterPaths } from "../../src";
+import request from 'supertest';
+import { ICreateUserModel, IUserViewModel } from '../../src/types/users-model';
+import { HTTP_STATUSES } from '../../src/utils/httpStatuses';
+import { ITestManagerCreateData } from './types/manager.types';
+import app, { RouterPaths } from '../../src';
 
 export const usersTestManager = {
   async createUser({
     inputData,
     expectedStatusCode = HTTP_STATUSES.CREATED_201,
-    authorizationCredentials = "",
+    authorizationCredentials = '',
   }: ITestManagerCreateData<ICreateUserModel>) {
     const response = await request(app)
       .post(RouterPaths.users)
-      .set("Authorization", authorizationCredentials)
+      .set('Authorization', authorizationCredentials)
       .send(inputData);
 
     expect(response.status).toBe(expectedStatusCode);

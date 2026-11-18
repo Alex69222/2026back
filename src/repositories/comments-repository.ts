@@ -1,5 +1,5 @@
-import { ICommentModel, ICreateCommentModel } from "../types/comment-model";
-import { commentsCollection } from "./db";
+import { ICommentModel, ICreateCommentModel } from '../types/comment-model';
+import { commentsCollection } from './db';
 
 export const commentsRepository = {
   async addComment(commentData: ICommentModel) {

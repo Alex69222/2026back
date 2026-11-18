@@ -1,8 +1,8 @@
-import { ICreatePostModel, IPostModel } from "../types/post-model";
-import { postsCollection } from "./db";
+import { ICreatePostModel, PostModel } from '../types/post-model';
+import { postsCollection } from './db';
 
 export const postsRepository = {
-  async addPost(postData: IPostModel): Promise<string | false> {
+  async addPost(postData: PostModel): Promise<string | false> {
     const post = { ...postData, id: new Date().toISOString() };
     await postsCollection.insertOne(post);
     const tempPost = post as any;

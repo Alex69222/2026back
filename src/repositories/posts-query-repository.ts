@@ -1,13 +1,11 @@
-import { IPaginationModel } from "../types/pagination/pagination-model";
-import { IPostModel } from "../types/post-model";
-import { paginateItems } from "../utils/paginateItems";
-import { INormalizedQparams } from "../utils/qpNormalizer";
-import { postsCollection } from "./db";
+import { IPaginationModel } from '../types/pagination/pagination-model';
+import { PostModel } from '../types/post-model';
+import { paginateItems } from '../utils/paginateItems';
+import { INormalizedQparams } from '../utils/qpNormalizer';
+import { postsCollection } from './db';
 
 export const postsQueryRepository = {
-  async getPostsCount(
-    filter?: Record<string, string | number>,
-  ): Promise<number> {
+  async getPostsCount(filter?: Record<string, string | number>): Promise<number> {
     const queryFilter = filter || {};
 
     const postsCount = await postsCollection.countDocuments(queryFilter);
@@ -17,7 +15,7 @@ export const postsQueryRepository = {
   async getPosts(
     qp: INormalizedQparams,
     filter?: Record<string, string | number>,
-  ): Promise<IPaginationModel<IPostModel>> {
+  ): Promise<IPaginationModel<PostModel>> {
     const queryFilter = filter || {};
     const totalCount = await this.getPostsCount(filter);
     const posts = await postsCollection
@@ -27,7 +25,7 @@ export const postsQueryRepository = {
       .sort({ [qp.sortBy]: qp.sortDirection })
       .toArray();
 
-    const result: IPaginationModel<IPostModel> = paginateItems({
+    const result: IPaginationModel<PostModel> = paginateItems({
       items: posts,
       page: qp.pageNumber,
       pageSize: qp.pageSize,
@@ -36,11 +34,8 @@ export const postsQueryRepository = {
     return result;
   },
 
-  async getPostById(id: string): Promise<IPostModel | null> {
-    const post = await postsCollection.findOne(
-      { id },
-      { projection: { _id: 0 } },
-    );
+  async getPostById(id: string): Promise<PostModel | null> {
+    const post = await postsCollection.findOne({ id }, { projection: { _id: 0 } });
     return post;
   },
 };

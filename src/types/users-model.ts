@@ -4,18 +4,21 @@ export interface IUserViewModel {
   email: string;
   createdAt: string;
 }
-export interface IUserDBModel {
-  id: string;
-  login: string;
-  email: string;
-  createdAt: string;
-  passwordHash: string;
-  passwordSalt: string;
-  emailConfirmation: {
-    confirmationCode: string;
-    isConfirmed: boolean;
-    expirationDate: Date;
-  };
+
+export class UserDBModel {
+  constructor(
+    public id: string,
+    public login: string,
+    public email: string,
+    public createdAt: string,
+    public passwordHash: string,
+    public passwordSalt: string,
+    public emailConfirmation: {
+      confirmationCode: string;
+      isConfirmed: boolean;
+      expirationDate: Date;
+    },
+  ) {}
 }
 
 export interface ICreateUserModel {

@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from "express";
-import { body } from "express-validator";
-import { commentsQueryRepository } from "../../repositories/comments-query-repository";
-import { HTTP_STATUSES } from "../../utils/httpStatuses";
+import { NextFunction, Request, Response } from 'express';
+import { body } from 'express-validator';
+import { commentsQueryRepository } from '../../repositories/comments-query-repository';
+import { HTTP_STATUSES } from '../../utils/httpStatuses';
 
-export const validateCommentContentMiddleware = body("content")
+export const validateCommentContentMiddleware = body('content')
   .isString()
   .trim()
   .isLength({ min: 20, max: 300 })

@@ -1,6 +1,6 @@
-import { ObjectId } from "mongodb";
-import { IBlogModel, ICreateBlogModel } from "../types/blog-model";
-import { blogsCollection } from "./db";
+import { ObjectId } from 'mongodb';
+import { IBlogModel, ICreateBlogModel } from '../types/blog-model';
+import { blogsCollection } from './db';
 
 export const blogsRepository = {
   async addBlog(blogInputModel: IBlogModel): Promise<string> {
@@ -12,10 +12,7 @@ export const blogsRepository = {
     return blog.id;
   },
 
-  async updateBlog(
-    id: string,
-    blogInputModel: ICreateBlogModel,
-  ): Promise<boolean> {
+  async updateBlog(id: string, blogInputModel: ICreateBlogModel): Promise<boolean> {
     const result = await blogsCollection.updateOne(
       { id },
       {

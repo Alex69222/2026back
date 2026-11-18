@@ -1,13 +1,11 @@
-import { IPaginationModel } from "../types/pagination/pagination-model";
-import { IUserViewModel } from "../types/users-model";
-import { paginateItems } from "../utils/paginateItems";
-import { INormalizedQparams } from "../utils/qpNormalizer";
-import { usersCollection } from "./db";
+import { IPaginationModel } from '../types/pagination/pagination-model';
+import { IUserViewModel } from '../types/users-model';
+import { paginateItems } from '../utils/paginateItems';
+import { INormalizedQparams } from '../utils/qpNormalizer';
+import { usersCollection } from './db';
 
 export const usersQueryRepository = {
-  async findUserByFilter(
-    filter: Record<string, string | number>,
-  ): Promise<IUserViewModel | null> {
+  async findUserByFilter(filter: Record<string, string | number>): Promise<IUserViewModel | null> {
     const user = await usersCollection.findOne(filter, {
       projection: { _id: 0 },
     });
@@ -21,15 +19,13 @@ export const usersQueryRepository = {
 
     return usersCount;
   },
-  async getUsers(
-    qp: INormalizedQparams,
-  ): Promise<IPaginationModel<IUserViewModel>> {
+  async getUsers(qp: INormalizedQparams): Promise<IPaginationModel<IUserViewModel>> {
     const filter: Record<string, any> = {};
     if (qp?.searchLoginTerm) {
-      filter.login = { $regex: qp.searchLoginTerm.toString(), $options: "i" };
+      filter.login = { $regex: qp.searchLoginTerm.toString(), $options: 'i' };
     }
     if (qp?.searchEmailTerm) {
-      filter.email = { $regex: qp.searchEmailTerm.toString(), $options: "i" };
+      filter.email = { $regex: qp.searchEmailTerm.toString(), $options: 'i' };
     }
 
     const totalCount = await this.getUsersCount(filter);
